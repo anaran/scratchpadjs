@@ -20,35 +20,41 @@ function timelogGetDate(d) {
     return timeString;
 }
 var text = document.body.querySelector('pre').textContent;
+// TODO This might be needed in Firefox Aurora to get newline and space into textContent
+// document.body.firstChild.textContent = document.body.firstChild.innerHTML.replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
+// Firefox nightly might even have more issues.
 var activity = text.replace(/.[\b]/g, '').replace(/( *\n)+/g, '\n');
 activity = activity.replace(/(.+MB \((\d+) .+\n)(.+MB \(\2 .+\n)+/g, 
 "$1more lines with same transfer rate...\n");
 var lines = activity.split('\n');
 // var ci = (new Date(Date.parse(lines.splice(0, 3).join(' '))));
-var ci;
+var ci, ciString;
 for (var i = 0, len = 3; i < len; i++) {
     ci = new Date(Date.parse(lines[i]));
     if (!isNaN(ci.getTime())) {
+        ciString = timelogGetDate(ci);
         break;
     }
 }
 if (isNaN(ci.getTime())) {
     ci = new Date();
     console.warn("could not parse start date-time, defaulting to now (%s)", ci);
+    ciString = prompt("Adjust defaulted value for " + lines.slice(0, 3).join('\n'), timelogGetDate(ci));
 }
 // var co = (new Date(Date.parse(lines.splice(lines.length - 3, 3).join(' '))));
-var co;
-for (var len = lines.length, i = len - 3; i < len; i++) {
+var co,coString;
+for (var last = lines.length - 1, i = last; i > last - 3; i--) {
     co = new Date(Date.parse(lines[i]));
     if (!isNaN(co.getTime())) {
+        coString = timelogGetDate(co);
         break;
     }
 }
 if (isNaN(co.getTime())) {
-    co = ci;
+    coString = ciString;
     console.warn("could not parse end date-time, defaulting to start date-time");
 }
 console.log("i %s %s\no %s\n",
-timelogGetDate(ci),
+ciString,
 JSON.stringify(activity),
-timelogGetDate(co));
+coString);
