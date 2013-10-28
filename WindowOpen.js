@@ -1,3 +1,6 @@
+// snippet WindowOpen.js exported by snippeteer from
+// Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
+// at 2013-10-28T20:19:08.353Z
  // See https://developer.mozilla.org/en-US/docs/Web/API/window.open
 // Try this from a New Tab so that popups are not blocked by the browser.
 (function() {
@@ -91,6 +94,7 @@
             size.textContent = pad(window.outerWidth, ' ', 4) + '*' + pad(window.outerHeight, ' ', 4) + '@' + pad(window.screenX, ' ', 4) + ',' + pad(window.screenY, ' ', 4);
             popup.textContent = pad(w.outerWidth, ' ', 4) + '*' + pad(w.outerHeight, ' ', 4) + '@' + pad(w.screenX, ' ', 4) + ',' + pad(w.screenY, ' ', 4);
         }, false);
+        console.log((new Error()).stack.split('\n')[1].trim());
     } catch (exception) {
         window.alert(exception.stack);
     }

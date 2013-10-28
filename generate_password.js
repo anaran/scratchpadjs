@@ -1,3 +1,6 @@
+// snippet generate_password.js exported by snippeteer from
+// Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
+// at 2013-10-28T20:19:08.351Z
 (function () {
     var passwd, classTypes, classCount, len, chars, classIndex, charIndex;
     do {
