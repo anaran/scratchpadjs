@@ -124,9 +124,9 @@
         console.log(document.hasFocus());
         console.log(window.activeElement);
         console.log(document.activeElement);
-        if (!document.hasFocus()) {
-            window.alert("This window needs your attetion (see Clock & Window Size Tracker)");
-        }
+//        if (!document.hasFocus()) {
+//            window.alert("This window needs your attention\nsee Clock & Window Size Tracker");
+//        }
 // console.log(window.hasFocus());
         console.log(document.defaultView.location.href);
     // This confirmer also opens a popup, not a tab!
