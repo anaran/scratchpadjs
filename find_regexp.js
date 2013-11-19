@@ -28,7 +28,24 @@
                 if (event.keyIdentifier === 'Enter') {
                     var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
                     //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
-                    window.alert(JSON.stringify(document.body.textContent.match(exp[1] && exp[3] ? new RegExp(exp[2], exp[3]) : event.target.value), null, 2));
+                    var matches = document.body.textContent.match(exp[1] && exp[3] ? new RegExp(exp[2], exp[3]) : event.target.value);
+                    window.alert(JSON.stringify(matches, null, 2));
+                    var matchRanges = {};
+                    matches && matches.forEach(function(match) {
+                        document.body.scrollIntoView(true);
+                        document.body.focus();
+                        // Not to get stuck at previous last match on page
+                        getSelection().removeAllRanges();
+                        console.log(match);
+                        matchRanges[match] = [];
+                        // TODO Please note it is pretty nasty to get out of look for !!"aWrapAround"
+                        while (window.find(match, "aCaseSensitive", !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog")) {
+                            matchRanges[match].push(window.getSelection().getRangeAt(0));
+                            window.alert("look! I found " + match);
+                        }
+//                         window.alert(JSON.stringify(matchRanges, null, 2));
+                        console.log(matchRanges);
+                    });
                 }
             }, false);
             searchClose.addEventListener('click', function() {
@@ -53,6 +70,5 @@
             }
         }
     }
-    // window.find(clipParam, "aCaseSensitive", !"aBackwards", !"aWrapAround", "aWholeWord", !"aSearchInFrames", !"aShowDialog");
     window.addEventListener('keydown', catchFind, false);
 })();
