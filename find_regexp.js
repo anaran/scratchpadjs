@@ -2,6 +2,9 @@
 // Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
 // at 2013-10-28T20:19:08.355Z
 (function() {
+    var matchRangesByMatch = {};
+    var matchRanges = [];
+    var matchIndex = 0;
     catchFind = function(event) {
         if (event.ctrlKey && event.keyCode === "F".charCodeAt(0)) {
             event.preventDefault();
@@ -9,6 +12,18 @@
             var searchBox = document.createElement('div');
             var searchField = document.createElement('input');
             var searchNext = document.createElement('input');
+            searchNext.addEventListener('click', function(event) {
+                matchIndex %= matchRanges.length;
+                window.getSelection().removeAllRanges();
+                document.body.scrollIntoView(true);
+                window.getSelection().addRange(matchRanges[matchIndex]);
+                //                         var bcr = matchRanges[matchIndex].getBoundingClientRect();
+                var bcr = window.getSelection().getRangeAt(0).getBoundingClientRect();
+                window.scrollTo(bcr.left - window.innerWidth / 2, bcr.top - window.innerHeight / 2);
+                console.log(bcr);
+                console.log(matchIndex);
+                matchIndex += 1;
+            }, false);
             var searchPrevious = document.createElement('input');
             var searchClose = document.createElement('input');
             searchBox.style.position = "fixed";
@@ -18,11 +33,11 @@
             searchField.autofocus = true;
             searchField.autocomplete = true;
             searchNext.type = "button";
-            searchNext.value = ">";
+            searchNext.value = "\u22C1";
             searchPrevious.type = "button";
-            searchPrevious.value = "<";
+            searchPrevious.value = "\u22C0";
             searchClose.type = "button";
-            searchClose.value = "X";
+            searchClose.value = "\u2A2F";
             searchField.addEventListener('keypress', function(event) {
                 console.log(event.keyIdentifier);
                 if (event.keyIdentifier === 'Enter') {
@@ -30,22 +45,26 @@
                     //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
                     var matches = document.body.textContent.match(exp[1] && exp[3] ? new RegExp(exp[2], exp[3]) : event.target.value);
                     window.alert(JSON.stringify(matches, null, 2));
-                    var matchRanges = {};
+                    getSelection().removeAllRanges();
+                    matchRanges = [];
+                    matchRangesByMatch = {};
                     matches && matches.forEach(function(match) {
-                        document.body.scrollIntoView(true);
-                        document.body.focus();
-                        // Not to get stuck at previous last match on page
-                        getSelection().removeAllRanges();
                         console.log(match);
-                        matchRanges[match] = [];
+                        //                         document.body.focus();
                         // TODO Please note it is pretty nasty to get out of look for !!"aWrapAround"
-                        while (window.find(match, "aCaseSensitive", !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog")) {
-                            matchRanges[match].push(window.getSelection().getRangeAt(0));
-                            window.alert("look! I found " + match);
+                        window.find(match, "aCaseSensitive", !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog");
+                        matchRanges.push(window.getSelection().getRangeAt(0));
+                        if (matchRangesByMatch[match]) {
+                            matchRangesByMatch[match].push(window.getSelection().getRangeAt(0));
+                        } else {
+                            matchRangesByMatch[match] = [];
+                            matchRangesByMatch[match].push(window.getSelection().getRangeAt(0));
                         }
-//                         window.alert(JSON.stringify(matchRanges, null, 2));
-                        console.log(matchRanges);
                     });
+                    window.getSelection().removeAllRanges();
+                    document.body.scrollIntoView(true);
+                    console.log(matchRangesByMatch);
+                    console.log(matchRanges);
                 }
             }, false);
             searchClose.addEventListener('click', function() {
