@@ -6,6 +6,7 @@
         var matchRangesByMatch = {};
         var matchRanges = [];
         var matchIndex = 0;
+        var regularExpression;
         catchFind = function(event) {
             try {
                 if (event.keyIdentifier === "U+0006") {
@@ -37,7 +38,46 @@
                     }
                     var searchBox = document.createElement('div');
                     var searchField = document.createElement('input');
+                    var searchFlagGlobal = document.createElement('input');
+                    searchFlagGlobal.id = "searchFlagGlobal";
+                    //                     searchFlagGlobal.name = "searchFlagGlobal";
+                    searchFlagGlobal.type = "checkbox";
+                    searchFlagGlobal.title = "match globally";
+                    var searchFlagGlobalLabel = document.createElement('label');
+                    searchFlagGlobalLabel.
+                    for = "searchFlagGlobal";
+                    searchFlagGlobalLabel.innerText = "g";
+                    //                     searchFlagGlobal.addEventListener('change', function(event) {
+                    //                         event.target.value = !event.target.value;
+                    //                         if (regularExpression instanceof RegExp) {
+                    //                             regularExpression = new RegExp(regularExpression.source, (event.target.checked ? "g" : "") + (regularExpression.ignoreCase ? "i" : "") + (regularExpression.multiline ? "m" : ""));
+                    //                             searchField.value = regularExpression.toString();
+                    //                         }
+                    //                     }, false);
+                    var searchFlagIgnoreCase = document.createElement('input');
+                    searchFlagIgnoreCase.id = "searchFlagIgnoreCase";
+                    searchFlagIgnoreCase.type = "checkbox";
+                    searchFlagIgnoreCase.title = "ignore letter case";
+                    var searchFlagIgnoreCaseLabel = document.createElement('label');
+                    searchFlagIgnoreCaseLabel.
+                    for = "searchFlagIgnoreCase";
+                    searchFlagIgnoreCaseLabel.innerText = "i";
+                    //                     searchFlagIgnoreCase.addEventListener('change', function(event) {
+                    //                         goToMatch(event, !! "next");
+                    //                     }, false);
+                    var searchFlagMultiLine = document.createElement('input');
+                    searchFlagMultiLine.id = "searchFlagMultiLine";
+                    searchFlagMultiLine.type = "checkbox";
+                    searchFlagMultiLine.title = "match multiple lines";
+                    var searchFlagMultiLineLabel = document.createElement('label');
+                    searchFlagMultiLineLabel.
+                    for = "searchFlagMultiLine";
+                    searchFlagMultiLineLabel.innerText = "m";
+                    //                     searchFlagMultiLine.addEventListener('change', function(event) {
+                    //                         goToMatch(event, !! "next");
+                    //                     }, false);
                     var searchFieldMatches = document.createElement('span');
+                    searchFieldMatches.innerText = 'no match';
                     var searchNext = document.createElement('input');
                     searchNext.type = "button";
                     searchNext.value = "\u22C1";
@@ -56,20 +96,29 @@
                     //         searchBox.style.left = 100 + 'px';
                     searchField.type = "search";
                     searchField.autofocus = true;
-                    searchField.autocomplete = true;
+                    searchField.autocomplete = "on";
+                    searchField.autosave = "re_match";
                     searchClose.type = "button";
                     searchClose.value = "\u2A2F";
                     searchClose.addEventListener('click', function() {
                         document.body.removeChild(searchBox);
                     }, false);
-                    searchField.addEventListener('keypress', function(event) {
+                    searchBox.addEventListener('keypress', function(event) {
                         try {
                             console.log(event.keyIdentifier);
+                            //                             if (!event.ctrlKey && event.shiftKey && event.keyIdentifier === 'Space') {
+                            //                                                         goToMatch(event, ! "next");
+                            //                             }
+                            //                             if (!event.ctrlKey && !event.shiftKey && event.keyIdentifier === 'Space') {
+                            //                                                         goToMatch(event, !! "next");
+                            //                             }
                             if (event.keyIdentifier === 'Enter' || event.keyCode === 13) {
-                                var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
-                                var re = (exp[1] && exp[3] ? new RegExp(exp[2], exp[3]) : event.target.value);
+                                //                                 var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
+                                regularExpression = new RegExp(searchField.value, (searchFlagGlobal.checked ? "g" : "") + (searchFlagIgnoreCase.checked ? "i" : "") + (searchFlagMultiLine.checked ? "m" : ""));
                                 //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
-                                var matches = document.body.textContent.match(re);
+                                var tmp = searchField.value;
+                                searchField.value = "";
+                                var matches = document.body.textContent.match(regularExpression);
                                 console.log(JSON.stringify(matches, null, 2));
                                 getSelection().removeAllRanges();
                                 matchIndex = 0;
@@ -79,7 +128,7 @@
                                     console.log(match);
                                     //                         document.body.focus();
                                     // TODO Please note it is pretty nasty to get out of look for !!"aWrapAround"
-                                    window.find(match, "aCaseSensitive", !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog");
+                                    window.find(match, !regularExpression.ignoreCase, !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog");
                                     if (window.getSelection().rangeCount === 1) {
                                         matchRanges.push(window.getSelection().getRangeAt(0));
                                         if (matchRangesByMatch[match]) {
@@ -93,6 +142,7 @@
                                         console.log('unexpected rangeCount', window.getSelection().rangeCount, matchRanges[matchIndex]);
                                     }
                                 });
+                                searchField.value = tmp;
                                 // window.getSelection().removeAllRanges();
                                 // document.body.scrollIntoView(true);
                                 console.log(matchRangesByMatch);
@@ -105,8 +155,15 @@
                     }, false);
                     searchField.placeholder = "\\w+\\s+\\d+";
                     searchBox.appendChild(searchField);
+                    searchBox.appendChild(searchFlagGlobal);
+                    searchBox.appendChild(searchFlagGlobalLabel);
+                    searchBox.appendChild(searchFlagIgnoreCase);
+                    searchBox.appendChild(searchFlagIgnoreCaseLabel);
+                    searchBox.appendChild(searchFlagMultiLine);
+                    searchBox.appendChild(searchFlagMultiLineLabel);
                     searchBox.appendChild(searchFieldMatches);
                     searchFieldMatches.style.backgroundColor = window.getComputedStyle(document.body).backgroundColor;
+                    searchFieldMatches.style.margin = "0 6px";
                     searchFieldMatches.style.opacity = 0.7;
                     searchBox.appendChild(searchPrevious);
                     searchBox.appendChild(searchNext);
