@@ -40,7 +40,8 @@
             searchClose.value = "\u2A2F";
             searchField.addEventListener('keypress', function(event) {
                 console.log(event.keyIdentifier);
-                if (event.keyIdentifier === 'Enter') {
+                // TODO Please note keyIdentifier is still undefied in Google Chrome 31
+                if (event.keyIdentifier === 'Enter' || event.keyCode === 13) {
                     var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
                     //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
                     var matches = document.body.textContent.match(exp[1] && exp[3] ? new RegExp(exp[2], exp[3]) : event.target.value);
