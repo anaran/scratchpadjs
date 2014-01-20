@@ -46,58 +46,58 @@
              var clockStyle2 = w.document.body.appendChild(document.createElement('pre'));
              var clockStyle3 = w.document.body.appendChild(document.createElement('pre'));
              var addTouchable = function() {
-             var offset = w.document.body.appendChild(document.createElement('pre'));
-             offset.contentEditable = false;
-             offset.innerText = '0';
-             offset.style.display = 'inline-block';
-             offset.style.textAlign = 'end';
-             offset.style.width = '2em';
-             offset.style.fontFamily = 'monospace';
-             offset.style.border = 'solid 2px';
-             (function() {
-                 var prevX, prevY, deltaX, deltaY, deltaSum;
-                 prevX = prevY = deltaX = deltaY = deltaSum = 0;
-                 offset.addEventListener('dragstart', function(event) {
-                     deltaSum = Number(offset.innerText);
-                 }, false);
-                 offset.addEventListener('mouseenter', function(event) {
-                     console.log(event.target);
-                     var s = getSelection();
-                     s.removeAllRanges();
-                     var r = document.createRange();
-                     r.selectNodeContents(offset);
-                     s.addRange(r);
-                 }, false);
-                 offset.addEventListener('dragend', function(event) {
-             offset.style.backgroundColor = 'white';
-                 }, false);
-                 offset.addEventListener('drag', function(event) {
-                     //             console.log(event.x, event.y);
-                     //             console.log(event);
-                     deltaY = event.y - prevY;
-                     deltaX = event.x - prevX;
-                     if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
-                         if (Math.abs(deltaX) * 2 > Math.abs(deltaY)) {
-                             //     Slow mode
-             offset.style.backgroundColor = 'lightcyan';
-                             deltaSum += deltaX / 8;
-                             deltaSum += 0.1;
-                             offset.innerText = Math.round(deltaSum);
+                 var offset = w.document.body.appendChild(document.createElement('pre'));
+                 offset.contentEditable = false;
+                 offset.innerText = '0';
+                 offset.style.display = 'inline-block';
+                 offset.style.textAlign = 'end';
+                 offset.style.width = '2em';
+                 offset.style.fontFamily = 'monospace';
+                 offset.style.border = 'solid 2px';
+                 (function() {
+                     var prevX, prevY, deltaX, deltaY, deltaSum;
+                     prevX = prevY = deltaX = deltaY = deltaSum = 0;
+                     offset.addEventListener('dragstart', function(event) {
+                         deltaSum = Number(offset.innerText);
+                     }, false);
+                     offset.addEventListener('mouseenter', function(event) {
+                         console.log(event.target);
+                         var s = getSelection();
+                         s.removeAllRanges();
+                         var r = document.createRange();
+                         r.selectNodeContents(offset);
+                         s.addRange(r);
+                     }, false);
+                     offset.addEventListener('dragend', function(event) {
+                         offset.style.backgroundColor = 'white';
+                     }, false);
+                     offset.addEventListener('drag', function(event) {
+                         //             console.log(event.x, event.y);
+                         //             console.log(event);
+                         deltaY = event.y - prevY;
+                         deltaX = event.x - prevX;
+                         if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+                             if (Math.abs(deltaX) * 2 > Math.abs(deltaY)) {
+                                 //     Slow mode
+                                 offset.style.backgroundColor = 'lightcyan';
+                                 deltaSum += deltaX / 8;
+                                 deltaSum += 0.1;
+                                 offset.innerText = Math.round(deltaSum);
+                             }
+                             if (Math.abs(deltaY) * 2 > Math.abs(deltaX)) {
+                                 //     Fast mode
+                                 offset.style.backgroundColor = 'lightpink';
+                                 deltaSum += deltaY;
+                                 deltaSum += 0.1;
+                                 // TODO Please note toFixed() also produces -0 values.
+                                 offset.innerText = Math.round(deltaSum);
+                             }
                          }
-                         if (Math.abs(deltaY) * 2 > Math.abs(deltaX)) {
-                             //     Fast mode
-             offset.style.backgroundColor = 'lightpink';
-                             deltaSum += deltaY;
-                             deltaSum += 0.1;
-                             // TODO Please note toFixed() also produces -0 values.
-                             offset.innerText = Math.round(deltaSum);
-                         }
-                     }
-                     console.log(deltaX, deltaY, offset.innerText);
-                     prevX = event.x;
-                     prevY = event.y;
-                 }, false);
-             })();
+                         console.log(deltaX, deltaY, offset.innerText);
+                         prevX = event.x;
+                         prevY = event.y;
+                     }, false);
+                 })();
              };
              addTouchable();
              addTouchable();

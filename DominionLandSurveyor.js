@@ -11,7 +11,7 @@
     inp.title = 'e.g. 16-36-127-34W8';
     inp.onkeyup = function LsdLocation(obj) {
         var value = obj.target.value;
-        // Based on idea by sin in http://stackoverflow.com/a/20508410/743358
+        // Based on idea by sln in http://stackoverflow.com/a/20508410/743358
         // Match incrementally, producing ever more subexpression matches until fully matched.
         var regex = /^(?:(0(?:[1-9])?|1(?:[0-6])?)(?:-(?:(0(?:[1-9])?|1(?:[0-9])?|2(?:[0-9])?|3(?:[0-6])?)(?:-(?:(0(?:[0-9](?:[1-9])?)?|1(?:[0-1](?:[0-9])?)?|1(?:[2](?:[0-7])?)?)(?:-(?:(0(?:[1-9])?|1(?:[0-9])?|2(?:[0-9])?|3(?:[0-4])?)(?:W(?:([1-8]))?)?)?)?)?)?)?)?)$/;
         var matches = regex.exec(value);
