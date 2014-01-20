@@ -22,7 +22,8 @@ function timelogGetDate(d) {
     timeString += ":" + ((seconds < 10) ? "0" + seconds : seconds); //$NON-NLS-0$
     return timeString;
 }
-var text = document.body.querySelector('pre').textContent;
+var pre = document.body.querySelector('pre');
+var text = pre && pre.textContent || document.querySelector('textarea').value;
 // TODO This might be needed in Firefox Aurora to get newline and space into textContent
 // document.body.firstChild.textContent = document.body.firstChild.innerHTML.replace(/<br>/g, '\n').replace(/&nbsp;/g, ' ');
 // Firefox nightly might even have more issues.
@@ -42,7 +43,7 @@ for (var i = 0, len = 3; i < len; i++) {
 if (isNaN(ci.getTime())) {
     ci = new Date();
     console.warn("could not parse start date-time, defaulting to now (%s)", ci);
-    ciString = prompt("Adjust defaulted value for " + lines.slice(0, 3).join('\n'), timelogGetDate(ci));
+    ciString = prompt("Adjust defaulted time for " + lines.slice(0, 3).join('\n') + (lines.length > 4 ? '\n...' : ''), timelogGetDate(ci));
 }
 // var co = (new Date(Date.parse(lines.splice(lines.length - 3, 3).join(' '))));
 var co,coString;
