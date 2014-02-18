@@ -1,6 +1,8 @@
 // snippet find_regexp.js exported by snippeteer from
 // Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
 // at 2013-10-28T20:19:08.355Z
+/* jslint browser: true */
+/*global console: false*/
 "use strict"; //$NON-NLS-0$
 (function() {
     try {
@@ -8,10 +10,9 @@
         var matchRanges = [];
         var matchIndex = 0;
         var regularExpression;
-        var catchFind;
-        catchFind = function(event) {
+        var catchFind = function(event) {
             try {
-                if (event.keyIdentifier === "U+0006") { //$NON-NLS-0$
+                if (event.key === 'f' && event.ctrlKey === true) {
                     event.preventDefault();
                     //         console.log("got it!", event);
                     var goToMatch = function(event, next) {
@@ -30,12 +31,14 @@
                                 window.scrollTo(bcr.left - window.innerWidth / 2, bcr.top - window.innerHeight / 2);
                                 // console.log(bcr);
                                 console.log(matchIndex);
-                                searchFieldMatches.innerText = matchRanges.length > 0 ? (matchIndex + " of " + matchRanges.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
+                                searchFieldMatches.textContent = matchRanges.length > 0 ? (matchIndex + " of " + matchRanges.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
                             } else {
                                 console.log('unexpected rangeCount', window.getSelection().rangeCount, matchRanges[matchIndex - 1]); //$NON-NLS-0$
                             }
                         } catch (exception) {
-                            console.error(exception.stack);
+                            debugger;
+                            console.error(exception.message + '\n' + exception.stack);
+                            window.alert(exception.message + '\n' + exception.stack);
                         }
                     };
                     var searchBox = document.createElement('div'); //$NON-NLS-0$
@@ -48,7 +51,7 @@
                     var searchFlagGlobalLabel = document.createElement('label'); //$NON-NLS-0$
                     searchFlagGlobalLabel.
                     for = "searchFlagGlobal"; //$NON-NLS-0$
-                    searchFlagGlobalLabel.innerText = "g"; //$NON-NLS-0$
+                    searchFlagGlobalLabel.textContent = "g"; //$NON-NLS-0$
                     //                     searchFlagGlobal.addEventListener('change', function(event) {
                     //                         event.target.value = !event.target.value;
                     //                         if (regularExpression instanceof RegExp) {
@@ -63,7 +66,7 @@
                     var searchFlagIgnoreCaseLabel = document.createElement('label'); //$NON-NLS-0$
                     searchFlagIgnoreCaseLabel.
                     for = "searchFlagIgnoreCase"; //$NON-NLS-0$
-                    searchFlagIgnoreCaseLabel.innerText = "i"; //$NON-NLS-0$
+                    searchFlagIgnoreCaseLabel.textContent = "i"; //$NON-NLS-0$
                     //                     searchFlagIgnoreCase.addEventListener('change', function(event) {
                     //                         goToMatch(event, !! "next");
                     //                     }, false);
@@ -74,12 +77,12 @@
                     var searchFlagMultiLineLabel = document.createElement('label'); //$NON-NLS-0$
                     searchFlagMultiLineLabel.
                     for = "searchFlagMultiLine"; //$NON-NLS-0$
-                    searchFlagMultiLineLabel.innerText = "m"; //$NON-NLS-0$
+                    searchFlagMultiLineLabel.textContent = "m"; //$NON-NLS-0$
                     //                     searchFlagMultiLine.addEventListener('change', function(event) {
                     //                         goToMatch(event, !! "next");
                     //                     }, false);
                     var searchFieldMatches = document.createElement('span'); //$NON-NLS-0$
-                    searchFieldMatches.innerText = 'no match'; //$NON-NLS-0$
+                    searchFieldMatches.textContent = 'no match'; //$NON-NLS-0$
                     var searchNext = document.createElement('input'); //$NON-NLS-0$
                     searchNext.type = "button"; //$NON-NLS-0$
                     searchNext.value = "\u22C1"; //$NON-NLS-0$
@@ -92,6 +95,8 @@
                     searchPrevious.addEventListener('click', function(event) { //$NON-NLS-0$
                         goToMatch(event, !"next"); //$NON-NLS-0$
                     }, false);
+                    searchNext.disabled = true;
+                    searchPrevious.disabled = true;
                     var searchClose = document.createElement('input'); //$NON-NLS-0$
                     searchBox.style.position = "fixed"; //$NON-NLS-0$
                     //         searchBox.style.top = 100 + 'px';
@@ -114,7 +119,10 @@
                             //                             if (!event.ctrlKey && !event.shiftKey && event.keyIdentifier === 'Space') {
                             //                                                         goToMatch(event, !! "next");
                             //                             }
-                            if (event.keyIdentifier === 'Enter' || event.keyCode === 13) { //$NON-NLS-0$
+                            if (event.key === 'Esc') {
+                                document.body.removeChild(searchBox);
+                            }
+                            if (event.keyIdentifier === 'Enter' || event.keyCode === 13) {
                                 //                                 var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
                                 regularExpression = new RegExp(searchField.value, (searchFlagGlobal.checked ? "g" : "") + (searchFlagIgnoreCase.checked ? "i" : "") + (searchFlagMultiLine.checked ? "m" : "")); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
                                 //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
@@ -149,13 +157,22 @@
                                 // document.body.scrollIntoView(true);
                                 console.log(matchRangesByMatch);
                                 console.log(matchRanges);
-                                searchFieldMatches.innerText = matchRanges.length > 0 ? (matchIndex + " of " + matchRanges.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
-                            };
+                                searchFieldMatches.textContent = matchRanges.length > 0 ? (matchIndex + ' of ' + matchRanges.length) : 'no match';
+                                if (matchRanges.length > 0) {
+                                    searchNext.disabled = false;
+                                    searchPrevious.disabled = false;
+                                } else {
+                                    searchNext.disabled = true;
+                                    searchPrevious.disabled = true;
+                                }
+                            }
                         } catch (exception) {
-                            console.error(exception.stack);
+                            debugger;
+                            console.error(exception.message + '\n' + exception.stack);
+                            window.alert(exception.message + '\n' + exception.stack);
                         }
                     }, false);
-                    searchField.placeholder = "\\w+\\s+\\d+"; //$NON-NLS-0$
+                    searchField.placeholder = 'e.g. \\w+\\s+\\d+';
                     searchBox.appendChild(searchField);
                     searchBox.appendChild(searchFlagGlobal);
                     searchBox.appendChild(searchFlagGlobalLabel);
@@ -172,6 +189,7 @@
                     searchBox.appendChild(searchClose);
                     console.log(searchBox);
                     document.body.insertBefore(searchBox, document.body.firstChild);
+                    searchField.focus();
 
                     function isInFront(div) {
                         var whoComputedStyle;
@@ -198,11 +216,15 @@
                     }
                 }
             } catch (exception) {
-                console.error(exception.stack);
+                debugger;
+                console.error(exception.message + '\n' + exception.stack);
+                window.alert(exception.message + '\n' + exception.stack);
             }
         };
         window.addEventListener('keypress', catchFind, false); //$NON-NLS-0$
     } catch (exception) {
-        console.error(exception.stack);
+        debugger;
+        console.error(exception.message + '\n' + exception.stack);
+        window.alert(exception.message + '\n' + exception.stack);
     }
 })();
