@@ -1,28 +1,39 @@
 // snippet generate_password.js exported by snippeteer from
 // Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
 // at 2013-10-28T20:19:08.351Z
-(function () {
-    var passwd, classTypes, classCount, len, chars, classIndex, charIndex;
+/* jslint browser: true */
+/*global console: false*/
+"use strict"; //$NON-NLS-0$
+var Passwd = function(length, classes) {
     do {
-        passwd = "";
-        classTypes = [];
-        classCount = 0;
-        len = Math.round(Math.random() * 5 + 8);
-        chars = ["~!@#$%^&*()_+=-|\\}]{[\"':;?/>.<,", "0123456789",
-                 "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+        var passwd = "",
+            classTypes = {}, classCount = 0,
+            len = length || Math.round(Math.random() * 5 + 8),
+            clsss = classes || ['digit', 'lower', 'punct', 'upper'],
+            cnt = clsss.length,
+            classIndex, charIndex,
+            chars = {
+                'punct': "~!@#$%^&*()_+=-|\\}]{[\"':;?/>.<,",
+                    'digit': "0123456789",
+                    'lower': "abcdefghijklmnopqrstuvwxyz",
+                    'upper': "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            };
+        // console.log("clsss = " + clsss);
         while (passwd.length < len) {
-            classIndex = Math.round(Math.random() * 3);
-            classTypes[classIndex] = true;
-            charIndex = Math.round(Math.random() * (chars[classIndex].length - 1));
-            passwd += chars[classIndex].charAt(charIndex);
+            classIndex = Math.floor(Math.random() * cnt);
+            classTypes[clsss[classIndex]] = true;
+            charIndex = Math.floor(Math.random() * chars[clsss[classIndex]].length);
+            passwd += chars[clsss[classIndex]].charAt(charIndex);
         }
-        console.log(JSON.stringify(classTypes));
-        classCount = classTypes.filter(function (value, index, object) {
-            return value === true; }).length;
-        console.log("classCount = " + classCount);
-        console.log("passwd.length = " + passwd.length);
-    } while (classCount < 4);
-    console.log("generated pasword is \n"+passwd);
-    console.log("but see http://xkcd.com/936/ for better paswords");
-})();
-
+        // console.log(JSON.stringify(classTypes));
+        classCount = Object.keys(classTypes).length;
+        // console.log("classCount = " + classCount);
+        // console.log("passwd.length = " + passwd.length);
+    } while (classCount < cnt);
+    if (window.confirm('See generated password now?')) {
+        window.prompt("See http://xkcd.com/936/ for better passwords.\n\nGenerated password has " + passwd.length + ' characters covering types ' + Object.keys(classTypes).sort() + '\n', passwd);
+    }
+};
+if (true) {
+    Passwd();
+}
