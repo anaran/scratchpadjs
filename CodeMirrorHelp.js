@@ -1,45 +1,67 @@
-// snippet CodeMirrorHelp.js exported by snippeteer from
-// Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
-// at 2013-10-28T20:19:08.352Z
- // Keyboard Event Experiments
+// snippet CodeMirrorHelp.js
 (function() {
-    if (false) {
-        //     console.trace();
-        // debugger;
-        // window.CodeMirror might be available in this iframe after I added following line to HMTL.
-        // script src='http://jsfiddle.net/js/codemirror/lib/codemirror.js?StillNoSpring'
-        // console.log(JSON.stringify(window.CodeMirror.keyMap[window.CodeMirror.defaults.keyMap]).replace(/,/g, "\n"));
-        // window.addEventListener("keypress", doKeyPress, false);
-        window.addEventListener("keydown", doKeyDown, false);
-        reportKeyInfo = function(e) {
-            if (e.keyIdentifier === "F2" && e.shiftKey && e.ctrlKey && e.type === "keydown") {
-                var dflt = window.CodeMirror.defaults.keyMap;
-                var fallthrough = window.CodeMirror.keyMap[window.CodeMirror.defaults.keyMap].fallthrough;
-                var helpWindow = window.open("data:application/json," + 
-                JSON.stringify(window.CodeMirror.keyMap[dflt]).replace(/([[{,])/g, "$1%0a"), 
-                'jsonFrame1', 
-                'modal,resizeable,top=100, left=100, height=500, width=470,personalbar=yes,menubar=yes,titlebar=yes,status=yes,location=yes');
-                console.dir(helpWindow);
-                var helpWindow2 = window.open("data:application/json," + 
-                JSON.stringify(window.CodeMirror.keyMap[fallthrough]).replace(/([[{,])/g, "$1%0a"), 
-                'jsonFrame2', 
-                'modal,resizeable,top=100, left=100, height=450, width=470');
-                var helpWindow3 = window.open("data:text/html,<pre>" + 
-                encodeURIComponent(JSON.stringify(window.CodeMirror.keyMap, null, 4)) + '</pre>', 
-                'jsonFrame3', 
-                'resizeable,top=100,left=100,height=600,width=470');
-            // .title = "CodeMirror Key Bindings"
+    var reportCodeMirrorInfo = function() {
+        if (!window.CodeMirror) {
+            console.log('No CodeMirror here');
+            return;
+        }
+        var dflt = window.CodeMirror.defaults.keyMap;
+        var fallthrough = window.CodeMirror.keyMap[window.CodeMirror.defaults.keyMap].fallthrough;
+        var defaultKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[dflt], null, 4);
+        var fallthroughKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[fallthrough], null, 4);
+        var defaultsHelp = JSON.stringify(window.CodeMirror.defaults, null, 4);
+        // console.log(defaultKeyMapHelp);
+        // console.log(fallthroughKeyMapHelp);
+        // console.log(defaultsHelp);
+        var pre = document.createElement('textarea');
+        // pre.style = 'position: fixed; top: 1em; left: 1em;';
+        pre.style['position'] = 'fixed';
+        pre.style['bottom'] = '1em';
+        pre.style['right'] = '1em';
+        pre.style['zIndex'] = 10;
+        pre.style['height'] = '50%';
+        pre.style['width'] = '50%';
+        pre.style['overflow'] = 'auto';
+        pre.style['resize'] = 'both';
+        // pre.style['whitespace'] = 'pre';
+        pre.style['tabindex'] = '1';
+        pre.style['background'] = 'white';
+        pre.textContent = defaultKeyMapHelp + '\n' + fallthroughKeyMapHelp + '\n' + defaultsHelp;
+        pre.title = 'CodeMirror Default Keymap, Fallthrough Keymap, Defaults';
+        pre.addEventListener('click', function(event) {
+            console.log(event.target, event);
+            document.body.removeChild(pre);
+        }, false);
+        pre.addEventListener('keydown', function(event) {
+            // event.cancelBubble = true;
+            console.log(event.target, event);
+            if ((event.key === 'Esc') || (event.keyIdentifier === 'U+001B')) {
+                document.body.removeChild(pre);
             }
-        }
-        function doKeyDown(e) {
-            reportKeyInfo(e);
-            return true;
-        }
-    } else {
-        window.open("data:text/html,<pre>" + 
-        encodeURIComponent(JSON.stringify(window.CodeMirror.keyMap, null, 4)) + '</pre>', 
-        'jsonFrame3', 
-        'resizeable,top=100,left=100,height=600,width=470');
-    
+            //             if ((event.key === 'PageDown') || (event.keyIdentifier === '???U+001B')) {
+            // event.stopPropagation();
+            //             }
+
+        }, false);
+        pre.addEventListener('keypress', function(event) {
+            console.log(event.target, event);
+            // event.preventDefault();
+        }, false);
+        document.body.appendChild(pre);
+        // pre.contentEditable = true;
+        pre.readOnly = true;
+        pre.focus();
+        console.log(pre);
+        // pre.contentEditable = 'false';
+    };
+    if (true) {
+        window.addEventListener('keydown', function(event) {
+            console.log(event.target, event);
+            if ((event.key === 'F2' || event.keyIdentifier === 'F2') && event.shiftKey && event.ctrlKey) {
+                reportCodeMirrorInfo();
+            } else {
+                // return '';
+            }
+        }, false);
     }
 })();
