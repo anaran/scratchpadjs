@@ -1,4 +1,10 @@
-// snippet CodeMirrorHelp.js
+// Code snippet CodeMirrorHelp.js for Google Chrome and Mozilla Firefox.
+// Ctrl+F1 opens fixed textarea displaying CodeMirror keymappings and defaults.
+// Close by pressing Esc or clicking anywhere in the textarea.
+// Navigate it with PageDown, PageUp.
+/*jslint browser: true*/
+/*globals console: false */
+
 (function() {
     var reportCodeMirrorInfo = function() {
         if (!window.CodeMirror) {
@@ -10,58 +16,42 @@
         var defaultKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[dflt], null, 4);
         var fallthroughKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[fallthrough], null, 4);
         var defaultsHelp = JSON.stringify(window.CodeMirror.defaults, null, 4);
-        // console.log(defaultKeyMapHelp);
-        // console.log(fallthroughKeyMapHelp);
-        // console.log(defaultsHelp);
-        var pre = document.createElement('textarea');
-        // pre.style = 'position: fixed; top: 1em; left: 1em;';
-        pre.style['position'] = 'fixed';
-        pre.style['bottom'] = '1em';
-        pre.style['right'] = '1em';
-        pre.style['zIndex'] = 10;
-        pre.style['height'] = '50%';
-        pre.style['width'] = '50%';
-        pre.style['overflow'] = 'auto';
-        pre.style['resize'] = 'both';
-        // pre.style['whitespace'] = 'pre';
-        pre.style['tabindex'] = '1';
-        pre.style['background'] = 'white';
-        pre.textContent = defaultKeyMapHelp + '\n' + fallthroughKeyMapHelp + '\n' + defaultsHelp;
-        pre.title = 'CodeMirror Default Keymap, Fallthrough Keymap, Defaults';
-        pre.addEventListener('click', function(event) {
-            console.log(event.target, event);
-            document.body.removeChild(pre);
+        var txtArea = document.createElement('textarea');
+        txtArea.style['position'] = 'fixed';
+        txtArea.style['bottom'] = '1em';
+        txtArea.style['right'] = '1em';
+        txtArea.style['zIndex'] = 10;
+        txtArea.style['height'] = '50%';
+        txtArea.style['width'] = '50%';
+        txtArea.style['overflow'] = 'auto';
+        // TODO: Firefox will process the click caused by resizing and close the textarea immediately after resizing.
+        // Not very useful. Resizing does not cause a click event in Google Chrome.
+        // txtArea.style['resize'] = 'both';
+        txtArea.style['tabindex'] = '1';
+        txtArea.style['background'] = 'white';
+        txtArea.textContent = defaultKeyMapHelp + '\n' + fallthroughKeyMapHelp + '\n' + defaultsHelp;
+        txtArea.title = 'CodeMirror Default Keymap, Fallthrough Keymap, Defaults';
+        txtArea.addEventListener('click', function(event) {
+            console.log(event.srcElement, event.currentTarget, event);
+            document.body.removeChild(txtArea);
         }, false);
-        pre.addEventListener('keydown', function(event) {
-            // event.cancelBubble = true;
-            console.log(event.target, event);
+        txtArea.addEventListener('keydown', function(event) {
+            // console.log(event.target, event);
             if ((event.key === 'Esc') || (event.keyIdentifier === 'U+001B')) {
-                document.body.removeChild(pre);
+                document.body.removeChild(txtArea);
             }
-            //             if ((event.key === 'PageDown') || (event.keyIdentifier === '???U+001B')) {
-            // event.stopPropagation();
-            //             }
-
         }, false);
-        pre.addEventListener('keypress', function(event) {
-            console.log(event.target, event);
+        txtArea.addEventListener('keypress', function(event) {
             // event.preventDefault();
         }, false);
-        document.body.appendChild(pre);
-        // pre.contentEditable = true;
-        pre.readOnly = true;
-        pre.focus();
-        console.log(pre);
-        // pre.contentEditable = 'false';
+        document.body.appendChild(txtArea);
+        txtArea.readOnly = true;
+        txtArea.focus();
     };
-    if (true) {
-        window.addEventListener('keydown', function(event) {
-            console.log(event.target, event);
-            if ((event.key === 'F2' || event.keyIdentifier === 'F2') && event.shiftKey && event.ctrlKey) {
-                reportCodeMirrorInfo();
-            } else {
-                // return '';
-            }
-        }, false);
-    }
+    window.addEventListener('keydown', function(event) {
+        // console.log(event.srcElement, event.currentTarget, event);
+        if ((event.key === 'F1' || event.keyIdentifier === 'F1') && event.ctrlKey && !event.shiftKey) {
+            reportCodeMirrorInfo();
+        }
+    }, false);
 })();
