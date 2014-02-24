@@ -13,16 +13,17 @@
         }
         var dflt = window.CodeMirror.defaults.keyMap;
         var fallthrough = window.CodeMirror.keyMap[window.CodeMirror.defaults.keyMap].fallthrough;
-        var defaultKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[dflt], null, 4);
-        var fallthroughKeyMapHelp = JSON.stringify(window.CodeMirror.keyMap[fallthrough], null, 4);
-        var defaultsHelp = JSON.stringify(window.CodeMirror.defaults, null, 4);
+        var defaultKeyMapHelp = 'CodeMirror defaultKeyMap = ' + JSON.stringify(window.CodeMirror.keyMap[dflt], null, 2);
+        var fallthroughKeyMapHelp = 'CodeMirror fallthroughKeyMap = ' + JSON.stringify(window.CodeMirror.keyMap[fallthrough], null, 2);
+        var defaultsHelp = 'CodeMirror defaults = ' + JSON.stringify(window.CodeMirror.defaults, null, 2);
         var txtArea = document.createElement('textarea');
         txtArea.style['position'] = 'fixed';
         txtArea.style['bottom'] = '1em';
         txtArea.style['right'] = '1em';
         txtArea.style['zIndex'] = 10;
         txtArea.style['height'] = '50%';
-        txtArea.style['width'] = '50%';
+        txtArea.style['width'] = '25em';
+        txtArea.style['maxWidth'] = '50%';
         txtArea.style['overflow'] = 'auto';
         // TODO: Firefox will process the click caused by resizing and close the textarea immediately after resizing.
         // Not very useful. Resizing does not cause a click event in Google Chrome.
