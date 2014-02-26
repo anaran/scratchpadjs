@@ -105,15 +105,16 @@ transparent
 //         window.addEventListener('resize', function (event) {
 //             console.log(event.type, event);
 //         }, false);
-        if (mailtos.length) {
+        if (mailtos.length > 0) {
             mailtoList = document.createElement('ul');
             mailtos.forEach(function (value) {
-                mailtoLink = document.createElement('a');
+                var mailtoLink = document.createElement('a');
                 mailtoLink.href = value;
                 // But, alas, see https://bugzilla.mozilla.org/show_bug.cgi?id=646552
                 // Use Ctrl+click workaround to open mailto link in new tab for now.
                 mailtoLink.target = '_blank';
-                mailtoRecipient = /^mailto:([^\?]+)\??/.exec(value)[1];
+                    var matches = (/^mailto:([^\?]+)\??/.exec(value));
+                    var mailtoRecipient = matches && matches[1] || value;
                 mailtoLink.textContent = mailtoRecipient;
                 mailtoList.appendChild(document.createElement('li').appendChild(mailtoLink).parentElement);
             });
