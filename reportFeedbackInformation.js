@@ -35,7 +35,9 @@
         var gpluses = [
         ];
         Array.prototype.forEach.call(document.querySelectorAll('a[href^="https://plus.google.com/"]'), function (value) {
+            if (!/https:\/\/plus\.google\.com\/u\/0\//.test(value)) {
             gpluses.push(value.href);
+            }
         });
         var data = {
             copyright: copyright && copyright.content,
@@ -48,7 +50,7 @@
             known_origins: known_origins
         };
         var divInfo = document.createElement('div');
-        var divInfoTextArea = document.createElement('pre');
+        var divInfoTextArea = document.createElement('div');
         var divInfoIconic = document.createElement('div');
         divInfoIconic.textContent = '!';
         //         divInfoIconic.display = 'block';
@@ -103,6 +105,31 @@ transparent
 //         window.addEventListener('resize', function (event) {
 //             console.log(event.type, event);
 //         }, false);
+        if (mailtos.length) {
+            mailtoList = document.createElement('ul');
+            mailtos.forEach(function (value) {
+                mailtoLink = document.createElement('a');
+                mailtoLink.href = value;
+                // But, alas, see https://bugzilla.mozilla.org/show_bug.cgi?id=646552
+                // Use Ctrl+click workaround to open mailto link in new tab for now.
+                mailtoLink.target = '_blank';
+                mailtoRecipient = /^mailto:([^\?]+)\??/.exec(value)[1];
+                mailtoLink.textContent = mailtoRecipient;
+                mailtoList.appendChild(document.createElement('li').appendChild(mailtoLink).parentElement);
+            });
+            divInfoTextArea.appendChild(mailtoList);
+        }
+        if (known_origins[document.location.origin]) {
+            siteFeedback = document.createElement('div');
+                feedbackLink = document.createElement('a');
+                feedbackLink.href = known_origins[document.location.origin];
+                // But, alas, see https://bugzilla.mozilla.org/show_bug.cgi?id=646552
+                // Use Ctrl+click workaround to open mailto link in new tab for now.
+                feedbackLink.target = '_blank';
+                feedbackLink.textContent = 'Known feedback form';
+                siteFeedback.appendChild(feedbackLink);
+            divInfoTextArea.appendChild(siteFeedback);
+        }
         divInfoTextArea.addEventListener('click', function (event) {
             console.log(event.type, event);
             if (false && event.layerX < 16 && event.layerY < 16) {
@@ -154,5 +181,7 @@ transparent
     //         if ((event.key === '@' || event.keyIdentifier === '@') && event.ctrlKey && !event.shiftKey) {
     //         }
     //     }, false);
+    if (document.body) {
     reportFeedbackInformation();
+    }
 }) ();
