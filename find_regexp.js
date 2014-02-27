@@ -205,7 +205,7 @@
                             console.info('trying to get in front of ', rightBottom, whoComputedStyle.zIndex); //$NON-NLS-0$
                             return false;
                         }
-                        console.info('we in front at leftTop and rightBottom!'); //$NON-NLS-0$
+                        console.info('we are in front at leftTop and rightBottom!'); //$NON-NLS-0$
                         return true;
                     }
                     for (var zIndex = 1; zIndex <= 10000; zIndex *= 10) {
