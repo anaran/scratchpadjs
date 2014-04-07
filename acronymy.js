@@ -1,9 +1,10 @@
-(function () {
+(function() {
     var acronymyDiv;
     var acronyms = [];
     if (sessionStorage['acronymy']) {
         acronyms = JSON.parse(sessionStorage.acronymy);
     }
+
     function isInFront(div) {
         var whoComputedStyle;
         var bcr = div.getBoundingClientRect();
@@ -27,7 +28,7 @@
         //$NON-NLS-0$
         return true;
     }
-    var isElementEditable = function () {
+    var isElementEditable = function() {
         var activeElement = document.activeElement;
         if (activeElement.isContentEditable) {
             return activeElement;
@@ -36,7 +37,7 @@
             return activeElement;
         }
     };
-    var addAcronymy = function () {
+    var addAcronymy = function() {
         if (acronymyDiv) {
             acronymyDiv.style.display = 'block';
         } else {
@@ -67,8 +68,8 @@
             acronymyDiv.style['background'] = 'white';
             acronymyDiv.style['color'] = 'black';
             for (i = 0, ec = document.body.childElementCount; i < ec; i++) {
-                bc = window.getComputedStyle(document.body.children[i]) ['backgroundColor'];
-                c = window.getComputedStyle(document.body.children[i]) ['color'];
+                bc = window.getComputedStyle(document.body.children[i])['backgroundColor'];
+                c = window.getComputedStyle(document.body.children[i])['color'];
                 console.log(document.body.children[i].nodeName, bc);
                 if (bc && bc !== 'transparent') {
                     acronymyDiv.style['background'] = bc;
@@ -81,31 +82,57 @@
             importLink = document.createElement('input');
             importLink.type = 'url';
             importLink.placeholder = 'import URL (acronymy or popchrom)';
-            importLink.addEventListener('keypress', function (event) {
+            importLink.addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
-                    window.prompt('you want to import', importLink.value);
-                    var httpRequest = new XMLHttpRequest();
-                    var infoReceived = function () {
-                        var output = httpRequest.responseText;
-                        console.log(httpRequest.status);
-                        if (output.length) {
-                            sessionStorage.acronymy = output;
-                            acronyms = JSON.parse(sessionStorage.acronymy);
-                            console.log(output);
-                        }
+                    // window.prompt('you want to import', importLink.value);
+                    var importWindow = window.open(importLink.value, '_blank');
+                    importIframe.src = importLink.value;
+                    importIframe.contentDocument
+                    importIframe.contentDocument.load = function() {
+                        //                     window.setTimeout(function() {
+                        console.log('importIframe', importIframe);
+                        //                     console.log('importWindow.document.URL', importWindow.document.URL);
+                        //                                       }, 5000);
                     };
-                    // console.log('withCredentials', httpRequest.hasOwnProperty('withCredentials'));
-                    httpRequest.open('GET', importLink.value, true);
-                    httpRequest.withCredentials = true;
-                    httpRequest.onload = infoReceived;
-                    httpRequest.onerror = function () {
-                        console.log('There was an error!', httpRequest);
-                    };
-                    httpRequest.send(null);
+                    // var importDocument = importWindow && importWindow.document;
+                    // console.log('importDocument', importDocument);
+                    if (importWindow) {
+                        importWindow.addEventListener('load', function(event) {
+                            try {
+                                console.log('importWindow load', event);
+                                //                                 if (event.target.readyState !== "complete") {
+                                //                                     return;
+                                //                                 }
+                                var httpRequest = new XMLHttpRequest();
+                                var infoReceived = function() {
+                                    var output = httpRequest.responseText;
+                                    console.log(httpRequest.status);
+                                    if (output.length) {
+                                        sessionStorage.acronymy = output;
+                                        acronyms = JSON.parse(sessionStorage.acronymy);
+                                        console.log(output);
+                                    }
+                                };
+                                // console.log('withCredentials', httpRequest.hasOwnProperty('withCredentials'));
+                                httpRequest.open('GET', importLink.value, true);
+                                httpRequest.withCredentials = false;
+                                httpRequest.onload = infoReceived;
+                                httpRequest.onerror = function() {
+                                    console.log('There was an error!', httpRequest);
+                                };
+                                httpRequest.send(null);
+                            } catch (exception) {
+                                window.alert('exception.stack: ' + exception.stack);
+                                console.log((new Date()).toJSON(), "exception.stack:", exception.stack);
+                            }
+                        }, false);
+                    }
                 }
             }, false);
             importDiv.appendChild(importLink);
             acronymyDiv.appendChild(importDiv);
+            importIframe = document.createElement('iframe');
+            acronymyDiv.appendChild(importIframe);
             document.body.appendChild(acronymyDiv);
             for (var zIndex = 1; zIndex <= 10000; zIndex *= 10) {
                 if (isInFront(acronymyDiv)) {
@@ -116,12 +143,12 @@
             }
         }
     };
-    var removeAcronymy = function () {
+    var removeAcronymy = function() {
         if (acronymyDiv) {
             acronymyDiv.style.display = 'none';
         }
     };
-    window.addEventListener('click', function (event) {
+    window.addEventListener('click', function(event) {
         if (isElementEditable()) {
             console.log('addAcronymy');
             addAcronymy();
@@ -130,4 +157,4 @@
             removeAcronymy();
         }
     }, false);
-}) ();
+})();
