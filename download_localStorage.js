@@ -3,7 +3,7 @@
 // at 2013-10-28T20:19:08.356Z
 (function() {
     var blob = new window.Blob([JSON.stringify(localStorage, null, 4)], {
-        'type': 'text/utf-8'
+        'type': 'text/plain;charset=utf-8'
     });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
