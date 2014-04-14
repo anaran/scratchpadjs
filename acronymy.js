@@ -216,3 +216,12 @@
         }
     }, false);
 })();
+// Running this script in Firefox Scratchpad on
+// file:///C:/Downloads/Autosave%20Text%20Options.htm
+// with (default)
+// security.fileuri.strict_origin_policy;true
+// leads following exception on access to sessionStorage:
+/*
+Exception: The operation is insecure.
+@9
+*/
