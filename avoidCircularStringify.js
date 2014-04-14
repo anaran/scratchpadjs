@@ -19,3 +19,12 @@ avoidCircual2 = function(element) {
         }
     });
 }
+
+avoidCircual3 = function(element) {
+    return JSON.stringify(element, function(key, value) {
+        if (!key || (value !== element)) {
+            return value;
+        }
+    });
+}
+

@@ -14,6 +14,7 @@
             console.log((new Date()) .toJSON(), 'exception.stack:', exception.stack);
         }
     }
+
     function isInFront(div) {
         var whoComputedStyle;
         var bcr = div.getBoundingClientRect();
@@ -38,7 +39,7 @@
 
         return true;
     }
-    var isElementEditable = function () {
+    var isElementEditable = function() {
         var activeElement = document.activeElement;
         if (activeElement.isContentEditable) {
             return activeElement;
@@ -47,7 +48,7 @@
             return activeElement;
         }
     };
-    var addAcronymy = function () {
+    var addAcronymy = function() {
         if (acronymyDiv) {
             acronymyDiv.style.display = 'block';
         } else {
@@ -200,12 +201,12 @@
             }
         }
     };
-    var removeAcronymy = function () {
+    var removeAcronymy = function() {
         if (acronymyDiv) {
             acronymyDiv.style.display = 'none';
         }
     };
-    window.addEventListener('click', function (event) {
+    window.addEventListener('click', function(event) {
         if (isElementEditable()) {
             // console.log('addAcronymy');
             addAcronymy();
@@ -214,4 +215,4 @@
             removeAcronymy();
         }
     }, false);
-}) ();
+})();
