@@ -11,7 +11,11 @@
 // var l = Cu.import("resource://gre/modules/commonjs/toolkit/loader.js", {});
 // console.log(l);
 // See http://forums.mozillazine.org/viewtopic.php?f=19&t=2698901
-if (Components && Components.utils) {
+(function () {
+  if (!window.hasOwnProperty('Cu')) {
+    alert('Run this scratchpad script in Environment->Browser');
+    return ;
+  }
   var {
     Loader
   }
@@ -33,6 +37,7 @@ if (Components && Components.utils) {
   });
   var module = Loader.Module('main', 'scratchpad://');
   var require = Loader.Require(loader, module);
+  window.require = require;
   //     var selection = require("sdk/selection");
   //     selection.on('select', function(){alert(1);});
   console.log(loader);
@@ -55,17 +60,15 @@ makeInfallible/<@resource://gre/modules/devtools/DevToolsUtils.js:84:7
   // tabs.open("http://www.xemacs.org");
   var notifications = require('sdk/notifications');
   notifications.notify({
-//     onClick: function (data) {
-//       alert(data);
-//       // console.log(this.data) would produce the same result.
-//     },
+    //     onClick: function (data) {
+    //       alert(data);
+    //       // console.log(this.data) would produce the same result.
+    //     },
     title: 'Scratchpad CommonJS Testing',
     text: 'You can now use\nrequire(\'file\');\nrequire(\'sdk/file\');\nto load from following paths:\n' + JSON.stringify(loader.mapping, null, 2)
     // data: 'did gyre and gimble in the wabe',
   });
   // var fre = require('file/find_regexp');
-  var fre = require('find_regexp');
-} 
-else {
-  alert('Run this scratchpad script in Environment->Browser');
-}
+  // var fre = require('find_regexp');
+  var gep = require('getElementPath');
+}) ();
