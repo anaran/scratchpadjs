@@ -2,12 +2,12 @@
 /*global console: false*/
 //
 // Workaround for Eclipse Orion for Mozilla Bug 
-// From:\n[ \t]+(//\$NON.+)
+// From:\n[ \t]*(//\$NON.+)
 // To: $1
 // Options: [v] Regular expression
 //
 // TODO This dows not work in Scratchpad:
-// Replace:/\n\s+(\/\/\$NON-NLS)/
+// Replace:/\n\s*(\/\/\$NON-NLS)/
 // With: $1
 'use strict';
 //$NON-NLS-0$
@@ -25,14 +25,12 @@
   window.replaceInActiveElement = function replaceInActiveElement(regexp, replacement, element) {
     var ae = element || document.activeElement;
     if (regexp === undefined) {
-      var str = window.prompt('Search RegExp (please escape .+*(){}[]? with \\', 'e.g. [\\w+\\d]');
-      //$NON-NLS-0$
+      var str = window.prompt('Search RegExp (please escape .+*(){}[]? with \\', 'e.g. [\\w+\\d]'); //$NON-NLS-0$
       var captureGroups = str.match(/^\/?(.+?)(?:\/([gim]*))?$/);
       var regexp = new RegExp(captureGroups[1], captureGroups[2]);
     }
     if (replacement === undefined) {
-      replacement = JSON.parse('"' + window.prompt('Replacement String with substitutions $1,$&,$`,$', 'e.g. $&') + '"')
-      //$NON-NLS-1$ //$NON-NLS-0$
+      replacement = JSON.parse('"' + window.prompt('Replacement String with substitutions $1,$&,$`,$', 'e.g. $&') + '"') //$NON-NLS-1$ //$NON-NLS-0$
     }
     if (ae) {
       if (ae.value) {
@@ -45,8 +43,7 @@
   };
   var usage = function usage() {
     // Replace globally in currently active Element:
-    replaceInActiveElement(/apa\.selfhost\.eu/g, 'my.own.server');
-    //$NON-NLS-0$
+    replaceInActiveElement(/apa\.selfhost\.eu/g, 'my.own.server'); //$NON-NLS-0$
     // Replace interactively, prompting for regexp and replacement:
     replaceInActiveElement();
   }

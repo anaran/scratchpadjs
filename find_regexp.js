@@ -1,6 +1,6 @@
-// snippet find_regexp.js exported by snippeteer from
-// Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1684.0 Safari/537.36
-// at 2013-10-28T20:19:08.355Z
+// See
+// TabSeeChrome/TabSee/find_regexp.js
+// for the maintained version of this discontinued snippet.
 /* jslint browser: true */
 /*global console: false*/
 "use strict"; //$NON-NLS-0$
