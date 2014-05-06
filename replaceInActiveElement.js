@@ -31,7 +31,7 @@
       var regexp = new RegExp(captureGroups[1], captureGroups[2]);
     }
     if (replacement === undefined) {
-      replacement = window.prompt('Replacement String with substitutions $1,$&,$`,$', 'e.g. $&');
+      replacement = JSON.parse('"' + window.prompt('Replacement String with substitutions $1,$&,$`,$', 'e.g. $&') + '"')
       //$NON-NLS-1$ //$NON-NLS-0$
     }
     if (ae) {
