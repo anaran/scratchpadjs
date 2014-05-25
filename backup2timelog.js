@@ -39,8 +39,8 @@ var lines = activity.split('\n');
 // var ci = (new Date(Date.parse(lines.splice(0, 3).join(' '))));
 var ci,
 ciString;
-for (var i = 0, len = 3; i < len; i++) {
-    ci = new Date(Date.parse(lines[i]));
+for (var i = 0, len = 10; i < len; i++) {
+    ci = new Date(Date.parse(lines[i].replace(/Script started on /i, '')));
     if (!isNaN(ci.getTime())) {
         ciString = timelogGetDate(ci);
         break;
@@ -49,14 +49,14 @@ for (var i = 0, len = 3; i < len; i++) {
 if (isNaN(ci.getTime())) {
     ci = new Date();
     console.warn('could not parse start date-time, defaulting to now (%s)', ci);
-    ciString = prompt('Adjust defaulted time for ' + lines.slice(0, 3) .join('\n') + (lines.length > 4 ? '\n...' : ''), timelogGetDate(ci));
+    ciString = prompt('Adjust defaulted time for ' + lines.slice(0, 9) .join('\n') + (lines.length > 4 ? '\n...' : ''), timelogGetDate(ci));
 }
 // var co = (new Date(Date.parse(lines.splice(lines.length - 3, 3).join(' '))));
 
 var co,
 coString;
-for (var last = lines.length - 1, i = last; i > last - 3; i--) {
-    co = new Date(Date.parse(lines[i]));
+for (var last = lines.length - 1, i = last; i > last - 11; i--) {
+    co = new Date(Date.parse(lines[i].replace(/Script done on /i, '')));
     if (!isNaN(co.getTime())) {
         coString = timelogGetDate(co);
         break;
