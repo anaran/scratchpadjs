@@ -40,4 +40,5 @@ git svn dcommit --dry-run
     // downloadLink.download = 'sorted_history.txt';
     downloadLink.innerHTML = 'Download &DoubleDownArrow; sorted history';
     document.body.appendChild(downloadLink);
+    downloadLink.setAttribute('style', "position:fixed;top:1em;right:1em;");
 }) ();
