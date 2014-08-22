@@ -13,7 +13,10 @@ var reportFeedbackInformation = function () {
     author = document.querySelector('meta[name=author]'),
     generator = document.querySelector('meta[name=generator]')
     known_origins = {
-        "https://developer.mozilla.org": "https://bugzilla.mozilla.org/form.doc"
+        "https://developer.mozilla.org": {
+            "help": "https://developer.mozilla.org/en-US/docs/MDN/About#Documentation_errors",
+            "report": "https://bugzilla.mozilla.org/form.doc?bug_file_loc="
+        }
     }
     var mailtos = [];
     // TODO Please see http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#attribute-substrings
@@ -34,7 +37,12 @@ var reportFeedbackInformation = function () {
         gpluses: gpluses,
         known_origins: known_origins
     };
-    window.alert('potential feedback information\n' + JSON.stringify(data, null, 2));
-//     window.alert('mailto addresses\n' + JSON.stringify(mailtos, null, 2));
+    var s = window.getSelection();
+    var brokenLink = s && (s.anchorNode.parentElement && s.anchorNode.parentElement.href || s.focusNode.parentElement && s.focusNode.parentElement.href);
+    // window.alert('potential feedback information\n' + JSON.stringify(data, null, 2));
+    if (brokenLink && known_origins[window.location.origin]) {
+        window.open(known_origins[window.location.origin].report + window.location.href + " Broken link " + brokenLink + " in " + window.location.href);
+    }
+    // window.alert('mailto addresses\n' + JSON.stringify(mailtos, null, 2));
 };
 reportFeedbackInformation();
