@@ -12,20 +12,55 @@ var reportFeedbackInformation = function () {
   description = document.querySelector('meta[name=description]'),
   author = document.querySelector('meta[name=author]'),
   generator = document.querySelector('meta[name=generator]'),
+      strWindowFeatures = 'resizable=yes,scrollbars=yes',
+  extractLinksFromselection = function() {
+  var s = window.getSelection();
+  let rangeLinks = [
+  ];
+  for (let i = 0; i < s.rangeCount; i++) {
+    if (s.getRangeAt(i).commonAncestorContainer.parentElement.hasAttribute('href')) {
+      rangeLinks.push(s.getRangeAt(i).commonAncestorContainer.parentElement.href);
+    }
+  }
+  return rangeLinks;
+  },
+      mozillaReporter = function() {
+        rangeLinks = extractLinksFromselection();
+        window.open(this.help, null, strWindowFeatures);
+    window.open(this.report + '&comment='
+    + window.encodeURIComponent((rangeLinks.length ? 'See these links:\n\n'
+    + rangeLinks.join(' ') + '\n\n  referenced from\n\n' : 'See:\n\n') + window.location.href + '\n\nDetails:\n\n' + window.getSelection().toString())
+    + '&bug_file_loc=' + window.encodeURIComponent(window.location.href)s
+    + '&short_desc=' + window.encodeURIComponent('Summarise issue or request about ' + document.title)
+    , "_blank", strWindowFeatures
+    );
+      },
   mdn = {
     'help': 'https://developer.mozilla.org/en-US/docs/MDN/About#Documentation_errors',
     //       'report': 'https://bugzilla.mozilla.org/form.doc?bug_file_loc='
-    'report': 'https://bugzilla.mozilla.org/enter_bug.cgi?format=__default__&product=Developer%20Documentation&component=General&short_desc=Suggested%20Solution%20or%20Problem%20Statement'
+    'report': 'https://bugzilla.mozilla.org/enter_bug.cgi?format=__default__&product=Developer%20Documentation&component=General',
+    'reporter': mozillaReporter
   },
   amo = {
     'help': 'https://addons.mozilla.org/en-US/developers/docs/policies/contact',
-    'report': 'https://bugzilla.mozilla.org/enter_bug.cgi?format=__default__&product=addons.mozilla.org&short_desc=Suggested%20Solution%20or%20Problem%20Statement'
-  }
+    'report': 'https://bugzilla.mozilla.org/enter_bug.cgi?format=__default__&product=addons.mozilla.org',
+    'reporter': mozillaReporter
+  },
+  dcca = {
+    'help': 'https://developer.chrome.com/apps/faq',
+    'report': 'https://code.google.com/p/chromium/issues/entry?label=Cr-Platform-Apps&summary=does%20not%20work&comment=off%20the%20record'
+  },
+  dcce = {
+    'help': 'https://developer.chrome.com/extensions/faq',
+    'report': 'https://code.google.com/p/chromium/issues/entry?label=Cr-Platform-Extensions&summary=does%20not%20work&comment=off%20the%20record'
+  },
   known_origins = {
     'https://developer.mozilla.org': mdn,
     'https://addons.mozilla.org': amo,
     // staging site for AMO
-    'https://addons.allizom.org': amo
+    'https://addons.allizom.org': amo,
+    'https://developer.chrome.com/apps/': dcca,
+    'https://developer.chrome.com/extensions/': dcce
   }
   var mailtos = [
   ];
@@ -38,14 +73,6 @@ var reportFeedbackInformation = function () {
   Array.prototype.forEach.call(document.querySelectorAll('a[href^="https://plus.google.com/"]'), function (value) {
     gpluses.push(value.href);
   });
-  var s = window.getSelection();
-  let rangeLinks = [
-  ];
-  for (let i = 0; i < s.rangeCount; i++) {
-    if (s.getRangeAt(i).commonAncestorContainer.parentElement.hasAttribute('href')) {
-      rangeLinks.push(s.getRangeAt(i).commonAncestorContainer.parentElement.href);
-    }
-  }
   var data = {
     copyright: copyright && copyright.content,
     keywords: keywords && keywords.content,
@@ -54,17 +81,12 @@ var reportFeedbackInformation = function () {
     generator: generator && generator.content,
     mailtos: mailtos,
     gpluses: gpluses,
-    rangeLinks: rangeLinks,
     url: document.URL,
-    selection: s
+    selection: window.getSelection().toString()
   };
-  if (known_origins[window.location.origin]) {
-    window.open(known_origins[window.location.origin].report + '&comment='
-    + window.encodeURIComponent((rangeLinks.length ? 'See these links:\n\n'
-    + rangeLinks.join(' ') + '\n\n  referenced from\n\n' : 'See:\n\n') + window.location.href + '\n\nDetails:\n\n' + s.toString())
-    + '&bug_file_loc=' + window.encodeURIComponent(window.location.href)
-    /* , "_blank", 'width=230,height=280,top=10,left=10'*/
-    );
+  let handler = known_origins[window.location.origin];
+  if (handler) {
+    handler.reporter();
   } else {
     window.alert('potential feedback information\n' + JSON.stringify(data, null, 2));
   }
@@ -72,13 +94,3 @@ var reportFeedbackInformation = function () {
 
 };
 reportFeedbackInformation();
-/*
-Exception: s.anchorNode is null
-reportFeedbackInformation@Scratchpad/4:44:7
-@Scratchpad/4:70:1
-*/
-/*
-Exception: i is not defined
-reportFeedbackInformation@Scratchpad/1:40:18
-@Scratchpad/1:70:1
-*/
