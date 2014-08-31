@@ -16,38 +16,40 @@ var reportFeedbackInformation = function () {
     for (var i = 0; i < s.rangeCount; i++) {
       var rc = s.getRangeAt(i).cloneContents();
       rc.querySelectorAll
-      && Array.prototype.forEach.call(
-        rc.querySelectorAll('a[href]'),
-        function (value) {
-          rangeLinks[value.href] = true;
-        });
+      && Array.prototype.forEach.call(rc.querySelectorAll('a[href]'), function (value) {
+        rangeLinks[value.href] = true;
+      });
     }
     return Object.keys(rangeLinks);
   },
   githubReporter = function (base) {
     rangeLinks = extractLinksFromSelection();
-    window.open(base + '/wiki', '_blank', strWindowFeatures);
-    window.open(base + '/issues/new'
+    base && window.open(base + '/wiki', '_blank', strWindowFeatures);
+    base && window.open(base + '/issues/new'
     + '?title=' + window.encodeURIComponent('Summarise issue or request about ' + document.title)
     + '&body='
     + window.encodeURIComponent((rangeLinks.length ? 'See these links:\n\n'
     + rangeLinks.join('\n') + '\n\n  referenced from\n\n' : 'See:\n\n') + window.location.href + '\n\nDetails:\n\n' + window.getSelection().toString()), '_blank', strWindowFeatures
     );
   },
+  npmReporter = function () {
+    githubReporter(this.report);
+  },
   mozillaReporter = function () {
     rangeLinks = extractLinksFromSelection();
-    window.open(this.help, '_blank', strWindowFeatures);
-    window.open(this.report + '&comment='
+    this.help && window.open(this.help, '_blank', strWindowFeatures);
+    var link = this.report + '&comment='
     + window.encodeURIComponent((rangeLinks.length ? 'See these links:\n\n'
     + rangeLinks.join('\n') + '\n\n  referenced from\n\n' : 'See:\n\n') + window.location.href + '\n\nDetails:\n\n' + window.getSelection().toString())
     + '&bug_file_loc=' + window.encodeURIComponent(window.location.href)
-    + '&short_desc=' + window.encodeURIComponent('Summarise issue or request about ' + document.title), '_blank', strWindowFeatures
-    );
+    + '&short_desc=' + window.encodeURIComponent('Summarise issue or request about ' + document.title);
+    console.log(this, link);
+    this.report && window.open(link, '_blank', strWindowFeatures);
   },
   chromiumReporter = function () {
     rangeLinks = extractLinksFromSelection();
-    window.open(this.help, null, strWindowFeatures);
-    window.open(this.report + '&comment='
+    this.help && window.open(this.help, null, strWindowFeatures);
+    this.report && window.open(this.report + '&comment='
     + window.encodeURIComponent((rangeLinks.length ? 'See these links:\n\n'
     + rangeLinks.join('\n') + '\n\n  referenced from\n\n' : 'See:\n\n') + window.location.href + '\n\nDetails:\n\n' + window.getSelection().toString())
     + '&bug_file_loc=' + window.encodeURIComponent(window.location.href)
@@ -77,6 +79,14 @@ var reportFeedbackInformation = function () {
   github = {
     'reporter': githubReporter
   },
+  npm = {
+    'report': 'https://github.com/npm/npm-www',
+    'reporter': npmReporter
+  },
+  w3html5 = {
+    report: 'https://www.w3.org/Bugs/Public/enter_bug.cgi?format=__default__&product=HTML%20WG&component=HTML5%20spec',
+    reporter: mozillaReporter
+  },
   knownSites = {
     'https://developer.mozilla.org': mdn,
     'https://addons.mozilla.org': amo,
@@ -85,7 +95,9 @@ var reportFeedbackInformation = function () {
     'https://developer.chrome.com/apps': dcca,
     'https://developer.chrome.com/extensions': dcce,
     // github reporter uses argument passed to it to derive help and report URL.
-    'https://github.com/[^/]+/[^/]+': github
+    'https://github.com/[^/]+/[^/]+': github,
+    'https://www.npmjs.org': npm,
+    'http://dev.w3.org/html5': w3html5
   },
   mailtos = [
   ];
@@ -111,13 +123,45 @@ var reportFeedbackInformation = function () {
     selection: window.getSelection().toString(),
     rangeLinks: extractLinksFromSelection()
   };
+  var div = document.querySelector('#reportFeedbackInformation') || document.createElement('div');
+  var lastStyle = window.getComputedStyle(document.body);
+  div.style.position = 'fixed';
+  var a = div.querySelector('a') || div.appendChild(document.createElement('a'));
+  div.style.background = lastStyle.backgroundColor;
+  // a.style.color = lastStyle.backgroundColor;
+  div.style.fontSize = 'x-large';
+  a.title = 'Report issue based on tab and selection(s)';
+  a.style.paddingLeft = '0.5em';
+  div.style.borderRadius = '3px';
+  a.style.opacity = 0.4;
+  div.id = 'reportFeedbackInformation';
   var handler = Object.keys(knownSites).some(function (value) {
     var captureGroups = value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
     var regexp = new RegExp(captureGroups[1], captureGroups[2]);
     var match = window.location.href.match(regexp);
     if (match) {
       // window.alert(JSON.stringify(match, Object.getOwnPropertyNames(match), 2));
-      knownSites[value].reporter(match[0]);
+      document.body.appendChild(div);
+      a.textContent = knownSites[value].title || 'Issue Pilot';
+      // NOTE Make sure to set element content before getting its client rect!
+      div.style.left = (window.innerWidth - div.getBoundingClientRect().width) / 2 + 'px';
+      div.style.top = (window.innerHeight - div.getBoundingClientRect().height) / 2 + 'px';
+      console.log(div.getBoundingClientRect());
+      a.href = '';
+      a.addEventListener('click', function (event) {
+        event.preventDefault();
+        knownSites[value].reporter(match[0]);
+        //         if (a.parentElement) {
+        //             document.body.removeChild(div);
+        //         }
+      }, false);
+      var close = div.querySelector('span') || div.appendChild(document.createElement('span'));
+      close.innerHTML = '&Cross;';
+      close.style.padding = '0.25em';
+      close.addEventListener('click', function (event) {
+        event.preventDefault();
+        document.body.removeChild(div);
+      }, false);
       return true;
     }
     return false;
@@ -128,3 +172,9 @@ var reportFeedbackInformation = function () {
   }
 };
 reportFeedbackInformation();
+/*
+Exception: myDocument is not defined
+reportFeedbackInformation/handler<@Scratchpad/3:154:9
+reportFeedbackInformation@Scratchpad/3:135:17
+@Scratchpad/3:169:1
+*/
