@@ -123,17 +123,26 @@ var reportFeedbackInformation = function () {
     selection: window.getSelection().toString(),
     rangeLinks: extractLinksFromSelection()
   };
-  var div = document.querySelector('#reportFeedbackInformation') || document.createElement('div');
-  var lastStyle = window.getComputedStyle(document.body);
+  var div = document.querySelector('#reportFeedbackInformation');
+  if (div) {
+    document.body.removeChild(div);
+  }
+  efp = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
+  div = document.createElement('div');
+  // var lastStyle = window.getComputedStyle(document.body.firstChild);
   div.style.position = 'fixed';
+  console.log(efp, window.getComputedStyle(efp));
   var a = div.querySelector('a') || div.appendChild(document.createElement('a'));
-  div.style.background = lastStyle.backgroundColor;
+  // div.style.background = 'transparent';
+  div.style.backgroundColor = window.getComputedStyle(efp).backgroundColor;
+  div.style.color = window.getComputedStyle(efp).color;
+  // div.style.background = window.getComputedStyle(document.querySelector('a')).backgroundColor;
   // a.style.color = lastStyle.backgroundColor;
   div.style.fontSize = 'x-large';
   a.title = 'Report issue based on tab and selection(s)';
   a.style.paddingLeft = '0.5em';
   div.style.borderRadius = '3px';
-  a.style.opacity = 0.4;
+  div.style.opacity = 0.9;
   div.id = 'reportFeedbackInformation';
   var handler = Object.keys(knownSites).some(function (value) {
     var captureGroups = value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
@@ -151,9 +160,6 @@ var reportFeedbackInformation = function () {
       a.addEventListener('click', function (event) {
         event.preventDefault();
         knownSites[value].reporter(match[0]);
-        //         if (a.parentElement) {
-        //             document.body.removeChild(div);
-        //         }
       }, false);
       var close = div.querySelector('span') || div.appendChild(document.createElement('span'));
       close.innerHTML = '&Cross;';
@@ -177,4 +183,9 @@ Exception: myDocument is not defined
 reportFeedbackInformation/handler<@Scratchpad/3:154:9
 reportFeedbackInformation@Scratchpad/3:135:17
 @Scratchpad/3:169:1
+*/
+/*
+Exception: Argument 1 of Window.getComputedStyle does not implement interface Element.
+reportFeedbackInformation@Scratchpad/3:127:19
+@Scratchpad/3:177:1
 */
