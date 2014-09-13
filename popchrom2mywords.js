@@ -93,7 +93,8 @@
     autosaveIndicator.style.border = '0.1em solid';
     autosaveIndicator.appendChild(a);
     var close = autosaveIndicator.appendChild(myDocument.createElement('span'));
-    close.innerHTML = '&Cross;';
+    // NOTE &Cross; is not available in Firefox for Android.
+    close.innerHTML = '&cross;';
     close.addEventListener('click', function (event) {
       event.preventDefault();
       myDocument.body.removeChild(autosaveIndicator);
