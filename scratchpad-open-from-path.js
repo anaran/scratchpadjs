@@ -4,11 +4,19 @@
 ;
 (function () {
   const DEBUG = false;
-  let inputElement = content.document.body.appendChild(content.document.createElement('input'));
+  // let myDocument = content.document;
+  // See
+  // https://developer.mozilla.org/en-US/docs/Web/API/Window.open#Return_value_and_parameters
+  // let strWindowFeatures = 'resizable=yes,scrollbars=yes,toolbar=yes';
+  // let strWindowFeatures = 'dialog=yes';
+    let strWindowFeatures = "width=400,height=100,top=10,left=10,dialog=yes";
+  let myDocument = content.window.open("", "_blank", strWindowFeatures).document;
+  myDocument.title = 'Drop file to open in Scratchpad';
+  let inputElement = myDocument.body.appendChild(myDocument.createElement('input'));
   inputElement.type = 'file';
   inputElement.title = 'Drop a file here to open it';
   inputElement.dropzone = 'link';
-  inputElement.style.cssText = 'position: fixed; top: 2em; left: 2em; opacity: 0.9; background: white';
+  inputElement.style.cssText = 'padding: 1em; border: 0.2em silver dashed; position: fixed; top: 2em; left: 2em; opacity: 0.9; background: white';
   inputElement.addEventListener('drop', function (event) {
     // TODO needed for drop to work!
     event.preventDefault(); // stops the browser from redirecting.
@@ -16,7 +24,7 @@
     // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
     DEBUG && console.log('event.dataTransfer.types', event.dataTransfer.types);
     Array.prototype.forEach.call(event.dataTransfer.types, function (type) {
-      console.log({ type: type,
+      DEBUG && console.log({ type: type,
                    'getData(type)': event.dataTransfer.getData(type) });
     });
     let linkData = event.dataTransfer.getData(event.dataTransfer.types[1]);
@@ -44,21 +52,43 @@
     let sp = Scratchpad.ScratchpadManager.openScratchpad({
       text: 'Please wait for import...'
     });
+    sp.addEventListener("error", function (event) {
+                window.alert(JSON.stringify({ message: exception.message,
+                         filename: exception.filename,
+                         stack: exception.stack }));
+    }, false);
+    sp.addEventListener("Ready", function (event) {
+                window.alert(JSON.stringify({ message: exception.message,
+                         filename: exception.filename,
+                         stack: exception.stack }));
+    }, false);
+    sp.addEventListener("message", function (event) {
+                window.alert(JSON.stringify({ message: exception.message,
+                         filename: exception.filename,
+                         stack: exception.stack }));
+    }, false);
     function doimport(event) {
       DEBUG && console.log(event);
       if (!event || event.target.readyState == 'complete') {
         DEBUG && console.log(sp);
-        try {
-          sp.Scratchpad.importFromFile(fileURL);
-          sp.Scratchpad.setState({
-            filename: path
-          });
-          console.log({ path: path, fileURL: fileURL });
-        } catch (exception) {
-          console.error({ message: exception.message,
-                         filename: exception.filename,
-                         stack: exception.stack });
-        }
+        //         try {
+        sp.Scratchpad.setState({
+          saved: true
+        });
+        sp.Scratchpad.importFromFile(fileURL, "silentError",
+                                     function callback(aStatus, aContent) {
+                                       sp.Scratchpad.setState({
+                                         filename: path,
+                                         saved: true
+                                       });
+                                       DEBUG && window.alert(JSON.stringify({aStatus: aStatus }));
+                                       DEBUG && window.alert(JSON.stringify({ path: path, fileURL: fileURL }));
+                                     });
+        //         } catch (exception) {
+        //           window.alert(JSON.stringify({ message: exception.message,
+        //                          filename: exception.filename,
+        //                          stack: exception.stack }));
+        //         }
       }
     }
     // TODO Find an event instead. onload is not the right one.
@@ -66,16 +96,11 @@
     setTimeout(doimport, 2000);
     // event.target.files[0].mozFullPath = event.target.value;
   }, false);
-  content.document.addEventListener('dragover', function (event) { //$NON-NLS-0$
+  myDocument.addEventListener('dragover', function (event) { //$NON-NLS-0$
     event.preventDefault();
     if ((event.target === inputElement)) {
       event.dataTransfer.effectAllowed = 'link'; //$NON-NLS-0$
       event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
-      //   if (event.dataTransfer.mozSourceNode.href) {
-      //   inputElement.mozSetFileNameArray([ event.dataTransfer.mozSourceNode.href ], 1);
-      //   }
-      // event.target.files.pushd.mozFullPath = event.dataTransfer.mozSourceNode.href;
-      //     document.body.classList.add('valid');
     } else {
       event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
       event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
@@ -83,13 +108,6 @@
     DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
     return false;
   }, false && 'useCapture'); //$NON-NLS-0$ //$NON-NLS-1$
-  // content.document.addEventListener("dragstart", function(event) {
-  //   // TODO needed for drop to work!
-  //   event.preventDefault(); // stops the browser from redirecting.
-  //     event.dataTransfer.effectAllowed = "none"; //$NON-NLS-0$
-  //     event.dataTransfer.dropEffect = "none"; //$NON-NLS-0$
-  //     DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
-  // }, false);
   inputElement.addEventListener('change', function (event) {
     console.log('inputElement.outerHTML', inputElement.outerHTML);
     let file = Components.classes['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
@@ -112,7 +130,6 @@
       }
     }
     // TODO Find an event instead. onload is not the right one.
-
     setTimeout(doimport, 1000);
     // sp.window.addEventListener('readystatechange', doimport, false);
   }, false);
