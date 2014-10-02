@@ -70,11 +70,11 @@ try {
       replace.value = 'replace';
       var txtArea = document.createElement('textarea');
       div.style['position'] = 'fixed';
-      div.style['bottom'] = '1em';
-      div.style['right'] = '1em';
+      div.style['top'] = '1em';
+      div.style['left'] = '1em';
       div.style['zIndex'] = 10;
-      // div.style['height'] = '50%';
-      // div.style['width'] = '50%';
+      div.style['height'] = '10%';
+      div.style['width'] = '70%';
       txtArea.style['width'] = '100%';
       txtArea.style['height'] = '100%';
       // div.style['maxWidth'] = '50%';
