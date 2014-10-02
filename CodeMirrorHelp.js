@@ -104,6 +104,9 @@ try {
       txtArea.textContent += '\n' + getKeyMapHelp(window.CodeMirror.defaults.keyMap);
       var defaultsHelp = '\nCodeMirror Defaults = ' + JSON.stringify(window.CodeMirror.defaults, null, 2);
       txtArea.textContent += defaultsHelp;
+      txtArea.textContent += '\n' + 'instance commands?';
+      var commandsHelp = '\nCodeMirror Commands = ' + JSON.stringify(Object.keys(window.CodeMirror.commands).sort(), null, 2);
+      txtArea.textContent += commandsHelp;
       if (activeCodeMirror) {
         txtArea.title = 'CodeMirror Active KeyMap, Active Options,';
       }
