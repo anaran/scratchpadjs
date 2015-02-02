@@ -7,8 +7,7 @@
 (function() {
   try {
     var iif = require('./is_in_front.js');
-    var matchRangesByMatch = {};
-    var matchRanges = [];
+    var betterMatches = [];
     var matchIndex = 0;
     var regularExpression;
     var catchFind = function(event) {
@@ -21,20 +20,20 @@
               window.getSelection().removeAllRanges();
               document.body.scrollIntoView(true);
               if (next) {
-                matchIndex = (matchIndex === matchRanges.length ? 1 : matchIndex + 1);
+                matchIndex = (matchIndex === betterMatches.length ? 1 : matchIndex + 1);
               } else {
-                matchIndex = (matchIndex === 1 ? matchRanges.length : matchIndex - 1);
+                matchIndex = (matchIndex === 1 ? betterMatches.length : matchIndex - 1);
               }
-              window.getSelection().addRange(matchRanges[matchIndex - 1]);
-              //                         var bcr = matchRanges[matchIndex].getBoundingClientRect();
+              window.getSelection().addRange(betterMatches[matchIndex - 1]);
+              //                         var bcr = betterMatches[matchIndex].getBoundingClientRect();
               if (window.getSelection().rangeCount === 1) {
                 var bcr = window.getSelection().getRangeAt(0).getBoundingClientRect();
                 window.scrollTo(bcr.left - window.innerWidth / 2, bcr.top - window.innerHeight / 2);
                 // console.log(bcr);
                 console.log(matchIndex);
-                searchFieldMatches.textContent = matchRanges.length > 0 ? (matchIndex + " of " + matchRanges.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
+                searchFieldMatches.textContent = betterMatches.length > 0 ? (matchIndex + " of " + betterMatches.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
               } else {
-                console.log('unexpected rangeCount', window.getSelection().rangeCount, matchRanges[matchIndex - 1]); //$NON-NLS-0$
+                console.log('unexpected rangeCount', window.getSelection().rangeCount, betterMatches[matchIndex - 1]); //$NON-NLS-0$
               }
             } catch (exception) {
               debugger;
@@ -53,13 +52,6 @@
           searchFlagGlobalLabel.
             for = "searchFlagGlobal"; //$NON-NLS-0$
           searchFlagGlobalLabel.textContent = "g"; //$NON-NLS-0$
-          //                     searchFlagGlobal.addEventListener('change', function(event) {
-          //                         event.target.value = !event.target.value;
-          //                         if (regularExpression instanceof RegExp) {
-          //                             regularExpression = new RegExp(regularExpression.source, (event.target.checked ? "g" : "") + (regularExpression.ignoreCase ? "i" : "") + (regularExpression.multiline ? "m" : ""));
-          //                             searchField.value = regularExpression.toString();
-          //                         }
-          //                     }, false);
           var searchFlagIgnoreCase = document.createElement('input'); //$NON-NLS-0$
           searchFlagIgnoreCase.id = "searchFlagIgnoreCase"; //$NON-NLS-0$
           searchFlagIgnoreCase.type = "checkbox"; //$NON-NLS-0$
@@ -113,53 +105,41 @@
           }, false);
           searchBox.addEventListener('keypress', function(event) { //$NON-NLS-0$
             try {
-              console.log(event.keyIdentifier);
-              //                             if (!event.ctrlKey && event.shiftKey && event.keyIdentifier === 'Space') {
-              //                                                         goToMatch(event, ! "next");
-              //                             }
-              //                             if (!event.ctrlKey && !event.shiftKey && event.keyIdentifier === 'Space') {
-              //                                                         goToMatch(event, !! "next");
-              //                             }
+              console.log(event.key, event);
               if (event.key === 'Esc') {
                 document.body.removeChild(searchBox);
               }
-              if (event.keyIdentifier === 'Enter' || event.keyCode === 13) {
+              if (event.key === 'Enter' || event.keyCode === 13) {
                 //                                 var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
                 regularExpression = new RegExp(searchField.value, (searchFlagGlobal.checked ? "g" : "") + (searchFlagIgnoreCase.checked ? "i" : "") + (searchFlagMultiLine.checked ? "m" : "")); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
                 //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
                 var tmp = searchField.value;
                 searchField.value = "";
-                var matches = document.body.textContent.match(regularExpression);
-                console.log(JSON.stringify(matches, null, 2));
+                betterMatches = [];
+                var collectMatches = function (node) {
+                  var m;
+                  var r = document.createRange();
+                  if (m = regularExpression.exec(node.textContent)) {
+                    r.setStart(node, m.index);
+                    r.setEnd(node, m.index + m[0].length);
+                    betterMatches.push(r);
+                    // console.log(node, m, r);
+                  }
+                  return (r.startOffset != r.endOffset);
+                };
+                // TODO In this design matches cannot span text elements.
+                var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, collectMatches);
+                while (dni.nextNode()) {
+                }
+                console.log(betterMatches);
+                // var matches = document.body.textContent.match(regularExpression);
+                // console.log(JSON.stringify(matches, null, 2));
                 getSelection().removeAllRanges();
                 matchIndex = 0;
-                matchRanges = [];
-                matchRangesByMatch = {};
-                matches && matches.forEach(function(match) {
-                  console.log(match);
-                  //                         document.body.focus();
-                  // TODO Please note it is pretty nasty to get out of look for !!"aWrapAround"
-                  window.find(match, !regularExpression.ignoreCase, !"aBackwards", !"aWrapAround", !"aWholeWord", !"aSearchInFrames", !"aShowDialog"); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
-                  if (window.getSelection().rangeCount === 1) {
-                    matchRanges.push(window.getSelection().getRangeAt(0));
-                    if (matchRangesByMatch[match]) {
-                      matchRangesByMatch[match].push(window.getSelection().getRangeAt(0));
-                    } else {
-                      matchRangesByMatch[match] = [];
-                      matchRangesByMatch[match].push(window.getSelection().getRangeAt(0));
-                    }
-                    matchIndex++;
-                  } else {
-                    console.log('unexpected rangeCount', window.getSelection().rangeCount, matchRanges[matchIndex]); //$NON-NLS-0$
-                  }
-                });
                 searchField.value = tmp;
-                // window.getSelection().removeAllRanges();
-                // document.body.scrollIntoView(true);
-                console.log(matchRangesByMatch);
-                console.log(matchRanges);
-                searchFieldMatches.textContent = matchRanges.length > 0 ? (matchIndex + ' of ' + matchRanges.length) : 'no match';
-                if (matchRanges.length > 0) {
+                console.log(betterMatches);
+                searchFieldMatches.textContent = betterMatches.length > 0 ? (matchIndex + ' of ' + betterMatches.length) : 'no match';
+                if (betterMatches.length > 0) {
                   searchNext.disabled = false;
                   searchPrevious.disabled = false;
                 } else {
