@@ -1,6 +1,6 @@
 // See
 // TabSeeChrome/TabSee/find_regexp.js
-// for the maintained version of this discontinued snippet.
+// for an old version of this content environment scratchpad.
 /* jslint browser: true */
 /*global console: false*/
 "use strict"; //$NON-NLS-0$
@@ -25,11 +25,9 @@
                 matchIndex = (matchIndex < 2 ? betterMatches.length : matchIndex - 1);
               }
               window.getSelection().addRange(betterMatches[matchIndex - 1]);
-              //                         var bcr = betterMatches[matchIndex].getBoundingClientRect();
               if (window.getSelection().rangeCount === 1) {
                 var bcr = window.getSelection().getRangeAt(0).getBoundingClientRect();
                 window.scrollTo(bcr.left - window.innerWidth / 2, bcr.top - window.innerHeight / 2);
-                // console.log(bcr);
                 console.log(matchIndex);
                 searchFieldMatches.textContent = betterMatches.length > 0 ? (matchIndex + " of " + betterMatches.length) : 'no match'; //$NON-NLS-1$ //$NON-NLS-0$
               } else {
@@ -45,7 +43,6 @@
           var searchField = document.createElement('input'); //$NON-NLS-0$
           var searchFlagGlobal = document.createElement('input'); //$NON-NLS-0$
           searchFlagGlobal.id = "searchFlagGlobal"; //$NON-NLS-0$
-          //                     searchFlagGlobal.name = "searchFlagGlobal";
           searchFlagGlobal.type = "checkbox"; //$NON-NLS-0$
           searchFlagGlobal.title = "match globally"; //$NON-NLS-0$
           var searchFlagGlobalLabel = document.createElement('label'); //$NON-NLS-0$
@@ -60,9 +57,6 @@
           searchFlagIgnoreCaseLabel.
             for = "searchFlagIgnoreCase"; //$NON-NLS-0$
           searchFlagIgnoreCaseLabel.textContent = "i"; //$NON-NLS-0$
-          //                     searchFlagIgnoreCase.addEventListener('change', function(event) {
-          //                         goToMatch(event, !! "next");
-          //                     }, false);
           var searchFlagMultiLine = document.createElement('input'); //$NON-NLS-0$
           searchFlagMultiLine.id = "searchFlagMultiLine"; //$NON-NLS-0$
           searchFlagMultiLine.type = "checkbox"; //$NON-NLS-0$
@@ -71,9 +65,6 @@
           searchFlagMultiLineLabel.
             for = "searchFlagMultiLine"; //$NON-NLS-0$
           searchFlagMultiLineLabel.textContent = "m"; //$NON-NLS-0$
-          //                     searchFlagMultiLine.addEventListener('change', function(event) {
-          //                         goToMatch(event, !! "next");
-          //                     }, false);
           var searchFieldMatches = document.createElement('span'); //$NON-NLS-0$
           searchFieldMatches.textContent = 'no match'; //$NON-NLS-0$
           var searchNext = document.createElement('input'); //$NON-NLS-0$
@@ -92,8 +83,6 @@
           searchPrevious.disabled = true;
           var searchClose = document.createElement('input'); //$NON-NLS-0$
           searchBox.style.position = "fixed"; //$NON-NLS-0$
-          //         searchBox.style.top = 100 + 'px';
-          //         searchBox.style.left = 100 + 'px';
           searchField.type = "search"; //$NON-NLS-0$
           searchField.autofocus = true;
           searchField.autocomplete = "on"; //$NON-NLS-0$
@@ -110,9 +99,7 @@
                 document.body.removeChild(searchBox);
               }
               if (event.key === 'Enter' || event.keyCode === 13) {
-                //                                 var exp = event.target.value.match(/^(\s*\/)?(.+?)(?:\/([gim]*))?\s*$/);
                 regularExpression = new RegExp(searchField.value, (searchFlagGlobal.checked ? "g" : "") + (searchFlagIgnoreCase.checked ? "i" : "") + (searchFlagMultiLine.checked ? "m" : "")); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
-                //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
                 var tmp = searchField.value;
                 searchField.value = "";
                 var sdni = 0;
@@ -120,12 +107,10 @@
                 ];
                 console.time('dni');
                 var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, function (node) {
-                  // console.log(ix++, node.length);
                   if (node.textContent.length > 0) {
                     textElement.push([sdni,
-                    sdni += node.textContent.length,
-                    node]);
-                    // sdni += node.textContent.length;
+                                      sdni += node.textContent.length,
+                                      node]);
                     return NodeFilter.FILTER_ACCEPT
                   } else {
                     console.exception(node);
@@ -137,32 +122,20 @@
                 console.log(sdni);
                 console.log(textElement);
                 betterMatches = [];
-                var collectMatches = function (node) {
-                };
-                  var m;
+                var m;
                 var tei = 0;
-                  while (m = regularExpression.exec(document.body.textContent)) {
+                while (m = regularExpression.exec(document.body.textContent)) {
                   var r = document.createRange();
-                    console.log(m.index, JSON.stringify(m, null, 2));
-                    for (; textElement[tei][1] <= m.index; tei++);
-                console.log(JSON.stringify(textElement[tei], null, 2));
-                    r.setStart(textElement[tei][2], m.index - textElement[tei][0]);
-                    for (; textElement[tei][1] < m.index + m[0].length; tei++);
-                    r.setEnd(textElement[tei][2], m.index + m[0].length - textElement[tei][0]);
-                    betterMatches.push(r);
-                    // console.log(node, m, r);
-                    if (regularExpression.lastIndex == 0) {
-                      break;
-                    }
+                  for (; textElement[tei][1] <= m.index; tei++);
+                  r.setStart(textElement[tei][2], m.index - textElement[tei][0]);
+                  for (; textElement[tei][1] < m.index + m[0].length; tei++);
+                  r.setEnd(textElement[tei][2], m.index + m[0].length - textElement[tei][0]);
+                  betterMatches.push(r);
+                  if (regularExpression.lastIndex == 0) {
+                    break;
                   }
+                }
                 // window.alert("scratchpad runs here.");
-                // TODO In this design matches cannot span text elements.
-                // var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, collectMatches);
-                // while (dni.nextNode()) {
-                // }
-                console.log(betterMatches);
-                // var matches = document.body.textContent.match(regularExpression);
-                // console.log(JSON.stringify(matches, null, 2));
                 getSelection().removeAllRanges();
                 matchIndex = 0;
                 searchField.value = tmp;
