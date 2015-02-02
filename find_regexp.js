@@ -12,17 +12,17 @@
     var regularExpression;
     var catchFind = function(event) {
       try {
-        if (event.key === 'f' && event.ctrlKey === true) {
-          event.preventDefault();
+        if (event.key === 'F' && event.ctrlKey === true) {
+          // event.preventDefault();
           //         console.log("got it!", event);
           var goToMatch = function(event, next) {
             try {
               window.getSelection().removeAllRanges();
               document.body.scrollIntoView(true);
               if (next) {
-                matchIndex = (matchIndex === betterMatches.length ? 1 : matchIndex + 1);
+                matchIndex = (matchIndex >= betterMatches.length ? 1 : matchIndex + 1);
               } else {
-                matchIndex = (matchIndex === 1 ? betterMatches.length : matchIndex - 1);
+                matchIndex = (matchIndex < 2 ? betterMatches.length : matchIndex - 1);
               }
               window.getSelection().addRange(betterMatches[matchIndex - 1]);
               //                         var bcr = betterMatches[matchIndex].getBoundingClientRect();
@@ -115,29 +115,57 @@
                 //             window.alert(JSON.stringify(document.body.textContent.match(new RegExp(event.target.value, "g")), null, 2));
                 var tmp = searchField.value;
                 searchField.value = "";
+                var sdni = 0;
+                var textElement = [
+                ];
+                console.time('dni');
+                var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, function (node) {
+                  // console.log(ix++, node.length);
+                  if (node.textContent.length > 0) {
+                    textElement.push([sdni,
+                    sdni += node.textContent.length,
+                    node]);
+                    // sdni += node.textContent.length;
+                    return NodeFilter.FILTER_ACCEPT
+                  } else {
+                    console.exception(node);
+                    return NodeFilter.FILTER_REJECT;
+                  }
+                });
+                while (dni.nextNode());
+                console.timeEnd('dni');
+                console.log(sdni);
+                console.log(textElement);
                 betterMatches = [];
                 var collectMatches = function (node) {
+                };
                   var m;
+                var tei = 0;
+                  while (m = regularExpression.exec(document.body.textContent)) {
                   var r = document.createRange();
-                  if (m = regularExpression.exec(node.textContent)) {
-                    r.setStart(node, m.index);
-                    r.setEnd(node, m.index + m[0].length);
+                    console.log(m.index, JSON.stringify(m, null, 2));
+                    for (; textElement[tei][1] <= m.index; tei++);
+                console.log(JSON.stringify(textElement[tei], null, 2));
+                    r.setStart(textElement[tei][2], m.index - textElement[tei][0]);
+                    for (; textElement[tei][1] < m.index + m[0].length; tei++);
+                    r.setEnd(textElement[tei][2], m.index + m[0].length - textElement[tei][0]);
                     betterMatches.push(r);
                     // console.log(node, m, r);
+                    if (regularExpression.lastIndex == 0) {
+                      break;
+                    }
                   }
-                  return (r.startOffset != r.endOffset);
-                };
+                // window.alert("scratchpad runs here.");
                 // TODO In this design matches cannot span text elements.
-                var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, collectMatches);
-                while (dni.nextNode()) {
-                }
+                // var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, collectMatches);
+                // while (dni.nextNode()) {
+                // }
                 console.log(betterMatches);
                 // var matches = document.body.textContent.match(regularExpression);
                 // console.log(JSON.stringify(matches, null, 2));
                 getSelection().removeAllRanges();
                 matchIndex = 0;
                 searchField.value = tmp;
-                console.log(betterMatches);
                 searchFieldMatches.textContent = betterMatches.length > 0 ? (matchIndex + ' of ' + betterMatches.length) : 'no match';
                 if (betterMatches.length > 0) {
                   searchNext.disabled = false;
