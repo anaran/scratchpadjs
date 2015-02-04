@@ -9,7 +9,7 @@
     var iif = require('./is_in_front.js');
     var betterMatches = [];
     var matchIndex = 0;
-    var regularExpression;
+    // var regularExpression;
     var catchFind = function(event) {
       try {
         if (event.key === 'F' && event.ctrlKey === true) {
@@ -99,42 +99,11 @@
                 document.body.removeChild(searchBox);
               }
               if (event.key === 'Enter' || event.keyCode === 13) {
-                regularExpression = new RegExp(searchField.value, (searchFlagGlobal.checked ? "g" : "") + (searchFlagIgnoreCase.checked ? "i" : "") + (searchFlagMultiLine.checked ? "m" : "")); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
                 var tmp = searchField.value;
                 searchField.value = "";
-                var sdni = 0;
-                var textElement = [
-                ];
-                console.time('dni');
-                var dni = document.createNodeIterator(document.body, NodeFilter.SHOW_TEXT, function (node) {
-                  if (node.textContent.length > 0) {
-                    textElement.push([sdni,
-                                      sdni += node.textContent.length,
-                                      node]);
-                    return NodeFilter.FILTER_ACCEPT
-                  } else {
-                    console.exception(node);
-                    return NodeFilter.FILTER_REJECT;
-                  }
-                });
-                while (dni.nextNode());
-                console.timeEnd('dni');
-                console.log(sdni);
-                console.log(textElement);
-                betterMatches = [];
-                var m;
-                var tei = 0;
-                while (m = regularExpression.exec(document.body.textContent)) {
-                  var r = document.createRange();
-                  for (; textElement[tei][1] <= m.index; tei++);
-                  r.setStart(textElement[tei][2], m.index - textElement[tei][0]);
-                  for (; textElement[tei][1] < m.index + m[0].length; tei++);
-                  r.setEnd(textElement[tei][2], m.index + m[0].length - textElement[tei][0]);
-                  betterMatches.push(r);
-                  if (regularExpression.lastIndex == 0) {
-                    break;
-                  }
-                }
+                var buildElementRegExpMatchRanges = require('./build_element_regexp_text_match_ranges.js').buildElementRegExpMatchRanges;
+                betterMatches = buildElementRegExpMatchRanges(document.body, tmp, searchFlagGlobal.checked, searchFlagIgnoreCase.checked, searchFlagMultiLine.checked);
+                console.log(betterMatches);
                 // window.alert("scratchpad runs here.");
                 getSelection().removeAllRanges();
                 matchIndex = 0;
@@ -163,7 +132,7 @@
           searchBox.appendChild(searchFlagMultiLine);
           searchBox.appendChild(searchFlagMultiLineLabel);
           searchBox.appendChild(searchFieldMatches);
-          searchFieldMatches.style.backgroundColor = window.getComputedStyle(document.body).backgroundColor;
+          // searchFieldMatches.style.backgroundColor = window.getComputedStyle(document.body).backgroundColor;
           searchFieldMatches.style.margin = "0 6px"; //$NON-NLS-0$
           searchFieldMatches.style.opacity = 0.7;
           searchBox.appendChild(searchPrevious);
