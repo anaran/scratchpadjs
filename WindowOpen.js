@@ -8,6 +8,7 @@
     'use strict';
 (function() {
     try {
+        var LOG = true;
         var formatDateTime = function(d, TZD) {
             // TODO See also http://www.w3.org/TR/NOTE-datetime
             var timeString = d.getFullYear();
@@ -51,8 +52,8 @@
         var setupTab = function() {
             // NOTE Remove third argument to open tab instead of popup window.
             // NOTE location=no,titlebar=0 have no effect in chrome or firefox around 2014-02-11.
-            // var w = window.open('', '');
-            var w = window.open('', '', 'width=230,height=280,top=10,left=10');
+            var w = window.open('', '');
+            // var w = window.open('', '', 'width=230,height=280,top=10,left=10');
             w.document.title = (new Error()).stack.split('\n')[1].trim();
             var clock = w.document.body.appendChild(document.createElement('pre'));
             var clockStyle2 = w.document.body.appendChild(document.createElement('pre'));
@@ -73,32 +74,81 @@
                     deltaY,
                     deltaSum;
                     prevX = prevY = deltaX = deltaY = deltaSum = 0;
-                    offset.addEventListener('dragstart', function(event) {
-                        deltaSum = Number(offset.textContent);
+                    offset.draggable = true;
+                    true && offset.addEventListener('touchstart', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        LOG && console.log(event.type, event.touches[event.touches.length - 1].clientX, event.touches[event.touches.length - 1].clientY);
+                        prevX = event.touches[event.touches.length - 1].clientX;
+                        prevY = event.touches[event.touches.length - 1].clientY;
+                        // event.dataTransfer.effectAllowed = "all";
+                        // event.dataTransfer.setData('text/plain', 'This text may be dragged');                        deltaSum = Number(offset.textContent);
                     }, false);
-                    offset.addEventListener('mouseenter', function(event) {
-                        console.log(event.target);
+                    true && offset.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        LOG && console.log(event.type, event.touches ? event.touches[event.touches.length - 1].clientX : event.clientX, event.touches ? event.touches[event.touches.length - 1].clientY : event.clientY);
+                        LOG && console.log(event);
+                        // NOTE: Cannot distinguish between mouse click with and without mouse move.
+                        // Therefor we only reset value for single click on touch device.
+                        if (! "touches" in event) {
+                        offset.style.backgroundColor = 'white';
+                        offset.textContent = '0';
+                        }
+                        // prevX = event.touches[event.touches.length - 1].clientX;
+                        // prevY = event.touches[event.touches.length - 1].clientY;
+                        // event.dataTransfer.effectAllowed = "all";
+                        // event.dataTransfer.setData('text/plain', 'This text may be dragged');                        deltaSum = Number(offset.textContent);
+                    }, false);
+                    // NOTE: We use double click to reset value for mouse clicks to be sure there was no associated mouse move.
+                    true && offset.addEventListener('dblclick', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        LOG && console.log(event.type, event.touches ? event.touches[event.touches.length - 1].clientX : event.clientX, event.touches ? event.touches[event.touches.length - 1].clientY : event.clientY);
+                        LOG && console.log(event);
+                        offset.style.backgroundColor = 'white';
+                        offset.textContent = '0';
+                        // prevX = event.touches[event.touches.length - 1].clientX;
+                        // prevY = event.touches[event.touches.length - 1].clientY;
+                        // event.dataTransfer.effectAllowed = "all";
+                        // event.dataTransfer.setData('text/plain', 'This text may be dragged');                        deltaSum = Number(offset.textContent);
+                    }, false);
+                    false && offset.addEventListener('mouseenter', function(event) {
+                        LOG && console.log(event.type, event.touches[event.touches.length - 1].clientX, event.touches[event.touches.length - 1].clientY);
+                        LOG && console.log(event.target);
                         var s = getSelection();
                         s.removeAllRanges();
                         var r = document.createRange();
                         r.selectNodeContents(offset);
                         s.addRange(r);
                     }, false);
-                    offset.addEventListener('dragend', function(event) {
-                        offset.style.backgroundColor = 'white';
+                    false && offset.addEventListener('mouseenter', function(event) {
+                        event.preventDefault();
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event.target);
                     }, false);
-                    offset.addEventListener('drag', function(event) {
-                        //             console.log(event.x, event.y);
-                        //             console.log(event);
-                        deltaY = event.y - prevY;
-                        deltaX = event.x - prevX;
+                    false && offset.addEventListener('mouseleave', function(event) {
+                        event.preventDefault();
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event.target);
+                    }, false);
+                    true && offset.addEventListener('mousemove', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (event.buttons == 0) {
+                        prevX = event.clientX;
+                        prevY = event.clientY;
+                        }
+                        if (event.buttons == 1) {
+                        deltaX = event.clientX - prevX;
+                        deltaY = prevY - event.clientY;
                         if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
                             if (Math.abs(deltaX) * 2 > Math.abs(deltaY)) {
                                 //     Slow mode
                                 offset.style.backgroundColor = 'lightcyan';
                                 deltaSum += deltaX / 8;
                                 deltaSum += 0.1;
-                                offset.textContent = Math.round(deltaSum);
+                                offset.textContent = Math.round(deltaSum) % 100;
                             }
                             if (Math.abs(deltaY) * 2 > Math.abs(deltaX)) {
                                 //     Fast mode
@@ -106,12 +156,67 @@
                                 deltaSum += deltaY;
                                 deltaSum += 0.1;
                                 // TODO Please note toFixed() also produces -0 values.
-                                offset.textContent = Math.round(deltaSum);
+                                offset.textContent = Math.round(deltaSum) % 100;
                             }
                         }
-                        console.log(deltaX, deltaY, offset.textContent);
-                        prevX = event.x;
-                        prevY = event.y;
+                        LOG && console.log(deltaX, deltaY, offset.textContent);
+                        prevX = event.clientX;
+                        prevY = event.clientY;
+                    }
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event);
+                        LOG && console.log(event.buttons);
+                    }, false);
+                    // NOTE: Only fires when another element is dragged into this one.
+                    false && offset.addEventListener('dragenter', function(event) {
+                        // event.preventDefault();
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event.target);
+                    }, false);
+                    // NOTE: Only fires when another element is dragged into this one.
+                    false && offset.addEventListener('dragover', function(event) {
+                        // event.preventDefault();
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event.target);
+                    }, false);
+                    // NOTE: No dragover events are triggered for the element receiving dragstart.
+                    false && offset.addEventListener('dragstart', function(event) {
+                        // event.preventDefault();
+                        event.dataTransfer.effectAllowed = "all";
+                        LOG && console.log(event.type, event.clientX, event.clientY);
+                        LOG && console.log(event.target);
+                    }, false);
+                    false && offset.addEventListener('touchend', function(event) {
+                        LOG && console.log(event.type, event.touches[event.touches.length - 1].clientX, event.touches[event.touches.length - 1].clientY);
+                        offset.style.backgroundColor = 'white';
+                    }, false);
+                    true && offset.addEventListener('touchmove', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        LOG && console.log(event.type, event.touches[event.touches.length - 1].clientX, event.touches[event.touches.length - 1].clientY, event.x, event.y);
+                        LOG && console.log(event);
+                        deltaX = event.touches[event.touches.length - 1].clientX - prevX;
+                        deltaY = prevY - event.touches[event.touches.length - 1].clientY;
+                        if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+                            if (Math.abs(deltaX) * 2 > Math.abs(deltaY)) {
+                                //     Slow mode
+                                offset.style.backgroundColor = 'lightcyan';
+                                deltaSum += deltaX / 8;
+                                deltaSum += 0.1;
+                                offset.textContent = Math.round(deltaSum) % 100;
+                            }
+                            if (Math.abs(deltaY) * 2 > Math.abs(deltaX)) {
+                                //     Fast mode
+                                offset.style.backgroundColor = 'lightpink';
+                                deltaSum += deltaY;
+                                deltaSum += 0.1;
+                                // TODO Please note toFixed() also produces -0 values.
+                                offset.textContent = Math.round(deltaSum) % 100;
+                            }
+                        }
+                        LOG && console.log(deltaX, deltaY, offset.textContent);
+                        prevX = event.touches[event.touches.length - 1].clientX;
+                        prevY = event.touches[event.touches.length - 1].clientY;
                     }, false);
                 })();
             };
@@ -144,7 +249,7 @@
                 if (timerID) {
                     w.clearInterval(timerID);
                     timerID = undefined;
-                    console.log('cancelTimer');
+                    LOG && console.log('cancelTimer');
                 } else {
                     timerID = w.setInterval(function() {
                         size.textContent = pad(window.outerWidth, ' ', 4) + '*' + pad(window.outerHeight, ' ', 4) + '@' + pad(window.screenX, ' ', 4) + ',' + pad(window.screenY, ' ', 4);
@@ -188,7 +293,7 @@
             clock.addEventListener('click', toggleClock, false);
             clockStyle2.addEventListener('click', toggleClock, false);
             clockStyle3.addEventListener('click', toggleClock, false);
-            console.log((new Error()).stack.split('\n')[1].trim());
+            LOG && console.log((new Error()).stack.split('\n')[1].trim());
         };
         // Minimum is around 148 x 66 due to title, minimize, maximize, close buttons, locationbar
         // canary chrome does not seem to accept any of the Toolbar and chrome features
@@ -211,25 +316,28 @@
         div.appendChild(document.createElement('div').appendChild(aNo).parentElement);
         // FIXME This still opens a popup, not a tab!
         // a.click();
-        div.setAttribute('style', 'position: fixed; top:50%; left: 50%; border: 0.2em solid silver; background: white;');
+        div.setAttribute('style', 'position: fixed; border: 0.2em solid silver; background: white;');
         document.body.appendChild(div);
-        console.log(window.location.href);
-        console.log(document.URL);
-        console.log(document.hasFocus());
-        console.log(window.activeElement);
-        console.log(document.activeElement);
+        div.style.top = (((window.innerHeight - div.offsetHeight) / 2) + 'px');
+        div.style.left = (((window.innerWidth - div.offsetWidth) / 2) + 'px');
+        console.log(div.style);
+        LOG && console.log(window.location.href);
+        LOG && console.log(document.URL);
+        LOG && console.log(document.hasFocus());
+        LOG && console.log(window.activeElement);
+        LOG && console.log(document.activeElement);
         //        if (!document.hasFocus()) {
         //            window.alert("This window needs your attention\nsee Clock & Window Size Tracker");
         //        }
-        // console.log(window.hasFocus());
-        console.log(document.defaultView.location.href);
+        // LOG && console.log(window.hasFocus());
+        LOG && console.log(document.defaultView.location.href);
         // This confirmer also opens a popup, not a tab!
         //         if (window.confirm("Start Clock & Window Size Tracker?")) {
         //             setupTab();
         //         }
     } catch (exception) {
         window.alert(exception.message + '\n' + exception.stack);
-        console.error(exception.message + '\n' + exception.stack);
+        LOG && console.error(exception.message + '\n' + exception.stack);
     }
 })();
 if (false) {
@@ -242,7 +350,7 @@ if (false) {
     'jsonFrame', 'resizeable,top=100, left=100, height=' + window.screen.availHeight / 2 + ',width=' + window.screen.availWidth / 2 + ',status=1');
     var b = document.querySelector('body');
     // FIXME!
-    // console.clear();
+    // LOG && console.clear();
     // <body> … </body>
     b.addEventListener('click', function(event) {
         event.preventDefault();
