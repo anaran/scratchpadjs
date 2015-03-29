@@ -1,10 +1,11 @@
 ;
 function buildElementRegExpMatchRanges(element, regexp, globalMatch, ignoreCase, multiLine) {
+  var DEBUG = false;
   var regularExpression = new RegExp(regexp, (globalMatch ? 'g' : '') + (ignoreCase ? 'i' : '') + (multiLine ? 'm' : '')); //$NON-NLS-4$ //$NON-NLS-3$ //$NON-NLS-2$ //$NON-NLS-1$ //$NON-NLS-0$
   var sdni = 0;
   var textElement = [
   ];
-  console.time('dni');
+  DEBUG && console.time('dni');
   var dni = document.createNodeIterator(element, NodeFilter.SHOW_TEXT, function (node) {
     if (node.textContent.length > 0) {
       textElement.push([sdni,
@@ -12,14 +13,14 @@ function buildElementRegExpMatchRanges(element, regexp, globalMatch, ignoreCase,
       node]);
       return NodeFilter.FILTER_ACCEPT
     } else {
-      console.exception(node);
+      DEBUG && console.exception(node);
       return NodeFilter.FILTER_REJECT;
     }
   });
   while (dni.nextNode());
-  console.timeEnd('dni');
-  console.log(sdni);
-  console.log(textElement);
+  DEBUG && console.timeEnd('dni');
+  DEBUG && console.log(sdni);
+  DEBUG && console.log(textElement);
   var betterMatches = [
   ];
   var m;
@@ -35,6 +36,11 @@ function buildElementRegExpMatchRanges(element, regexp, globalMatch, ignoreCase,
       break;
     }
   }
+  DEBUG && console.log(betterMatches);
   return betterMatches;
 }
-exports.buildElementRegExpMatchRanges = buildElementRegExpMatchRanges;
+if (typeof exports === 'undefined') {
+  buildElementRegExpMatchRanges(document.body, window.prompt('regexp'), 'globalMatch', 'ignoreCase', !'multiLine');
+} else {
+  exports.buildElementRegExpMatchRanges = buildElementRegExpMatchRanges;
+}
