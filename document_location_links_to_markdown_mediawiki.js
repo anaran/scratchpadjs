@@ -5,15 +5,13 @@ var linkShortener = function (title, href) {
   var shortenBMO = function (text) {
     return replaceInText(text, /\bhttps:\/\/bugzilla\.mozilla\.org\/show_bug\.cgi\?id=(\d+)\b/g, 'https://bugzil.la/$1');
   }
-  // TODO: mediawiki syntax is [link title] vs markdown [title](link)
-
-  var markdownLink = {
+  var shortLink = {
     title: title,
     href: shortenBMO(href)
   };
-  var e = new Error(markdownLink);
+  var e = new Error(shortLink);
   // window.prompt(e.stack.split("\n")[0] + ', running on this tab, says:', e.message);
-  return markdownLink;
+  return shortLink;
   // return JSON.stringify(e, Object.getOwnPropertyNames(e), 2);
 };
 var toMarkdown = function (options) {
@@ -33,8 +31,11 @@ closingLink.textContent = 'Close';
 // linkContainer.style = 'position: fixed; top: 2em; left: 2em; opacity: 0.9; ';
 // linkContainer.style += 'z-index: 1000; background-color: yellow; overflow: scroll;';
 linkContainer.style = 'z-index: 1000; background-color: yellow; overflow: scroll;';
-// linkContainer.id = 'findme' + Date.now();
-linkHeadline.textContent = 'Shortened Links';
+linkContainer.id = 'dlltmm';
+for(var dlltmm of document.querySelectorAll('#dlltmm')) {
+  document.body.removeChild(dlltmm);
+}
+linkHeadline.textContent = 'Shortened Links in Page';
 linkContainer.className = 'linky';
 linkContainer.appendChild(closingLink);
 linkContainer.appendChild(linkHeadline);
@@ -49,8 +50,10 @@ var addSingleLink = function (title, href) {
   mediawikiLink.value = toMediawiki(linkShortener(title, href));
   markdownLink.readOnly = true;
   mediawikiLink.readOnly = true;
-  markdownLink.size = 80;
-  mediawikiLink.size = 80;
+  // markdownLink.size = 80;
+  // mediawikiLink.size = 80;
+  markdownLink.style = 'width: calc(50% - 10ex);';
+  mediawikiLink.style = 'width: calc(50% - 10ex);';
   linkContainer.appendChild(singleLinkContainer);
   markdownLabel.textContent = 'markdown';
   markdownLabel.appendChild(markdownLink);
@@ -58,8 +61,18 @@ var addSingleLink = function (title, href) {
   mediawikiLabel.textContent = 'mediawiki';
   mediawikiLabel.appendChild(mediawikiLink);
   singleLinkContainer.appendChild(mediawikiLabel);
+  var topLink = document.createElement('a');
+  var gotoTop = function (event) {
+    event.target.parentElement.parentElement.scrollIntoView();
+  };
+  topLink.onclick = gotoTop;
+  topLink.textContent = 'Top';
+  singleLinkContainer.appendChild(topLink);
 };
 addSingleLink(document.title, document.location.href);
+var summary = document.createElement('h2');
+summary.textContent = "Page has " + document.links.length + " links listed below."
+linkContainer.appendChild(summary);
 Array.prototype.forEach.call(document.links, function (link) {
   addSingleLink(link.textContent, link.href);
 });
