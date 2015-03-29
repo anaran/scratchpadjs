@@ -68,17 +68,18 @@ try {
       replace.type = 'button';
       // NOTE &Cross; is not available in Firefox for Android.
       replace.value = 'replace';
-      var txtArea = document.createElement('textarea');
+      // var txtArea = document.createElement('textarea');
+      var txtArea = document.createElement('pre');
       div.style['position'] = 'fixed';
       div.style['top'] = '1em';
       div.style['left'] = '1em';
       div.style['zIndex'] = 10;
       div.style['height'] = '10%';
       div.style['width'] = '70%';
-      txtArea.style['width'] = '100%';
-      txtArea.style['height'] = '100%';
+      // txtArea.style['width'] = '100%';
+      // txtArea.style['height'] = '100%';
       // div.style['maxWidth'] = '50%';
-      // txtArea.style['overflow'] = 'auto';
+      txtArea.style['overflow'] = 'visible';
       // TODO: Firefox will process the click caused by resizing and close the textarea immediately after resizing.
       // Not very useful. Resizing does not cause a click event in Google Chrome.
       // div.style['resize'] = 'both';
