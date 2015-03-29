@@ -17,12 +17,12 @@ function logEventType(type) {
             window.addEventListener(type, this.listener, false);
             this.enabled = true;
         }
-    }
+    };
     this.disable = function disable() {
         if (this.enabled) {
             // useCapture argument value must match that in addEventListener.
             window.removeEventListener(type, this.listener, false);
             this.enabled = false;
         }
-    }
+    };
 }
