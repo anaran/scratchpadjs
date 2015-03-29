@@ -1,7 +1,8 @@
 (function () {
-    const findMyTargetTab = function () {
+  var iif = require('./is_in_front.js');
+  const findMyTargetTab = function () {
         window.alert('you were here!');
-    }
+    };
     var acronymyDiv,
     statusDiv;
     var acronyms = [
@@ -15,30 +16,6 @@
         }
     }
 
-    function isInFront(div) {
-        var whoComputedStyle;
-        var bcr = div.getBoundingClientRect();
-        // console.log(bcr, bcr.right - bcr.left, bcr.bottom - bcr.top);
-        var leftTop = document.elementFromPoint(bcr.left, bcr.top);
-        // TODO bottom right seems already outside element.
-        var rightBottom = document.elementFromPoint(bcr.right - 1, bcr.bottom - 1);
-        if (leftTop !== div && !div.contains(leftTop)) {
-            whoComputedStyle = window.getComputedStyle(leftTop);
-            // console.info('trying to get in front of leftTop ', leftTop, whoComputedStyle.zIndex);
-            //$NON-NLS-0$
-            return false;
-        }
-        if (rightBottom !== div && !div.contains(rightBottom)) {
-            whoComputedStyle = window.getComputedStyle(rightBottom);
-            // console.info('trying to get in front of rightBottom ', rightBottom, whoComputedStyle.zIndex);
-            //$NON-NLS-0$
-            return false;
-        }
-        // console.info('we are in front at leftTop and rightBottom!');
-        //$NON-NLS-0$
-
-        return true;
-    }
     var isElementEditable = function() {
         var activeElement = document.activeElement;
         if (activeElement.isContentEditable) {
@@ -192,7 +169,7 @@
             acronymyDiv.appendChild(importIframe);
             document.body.appendChild(acronymyDiv);
             for (var zIndex = 1; zIndex <= 10000; zIndex *= 10) {
-                if (isInFront(acronymyDiv)) {
+                if (iif.isInFront(acronymyDiv)) {
                     break;
                 }
                 // console.log('set zIndex to ' + zIndex);
