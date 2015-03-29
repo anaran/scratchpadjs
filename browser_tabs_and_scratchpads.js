@@ -113,6 +113,13 @@
             }
           } else {
             noMatch.style.display = 'list-item';
+            // tab content has been loaded (e.g. since last browser restart)
+            if (tabs[i].linkedBrowser.contentDocument.body.textContent.length) {
+              noMatch.style.opacity = 1.0;
+            } else {
+              // tab content has not been loaded, user needs to visit tab.
+              noMatch.style.opacity = 0.4;
+            }
           }
         }
         window.setTimeout(function () {
