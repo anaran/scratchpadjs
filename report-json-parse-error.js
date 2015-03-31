@@ -1,6 +1,9 @@
+// Fix limitations of Scratchpad Pretty Print EcmaScript XX Support
 // Replace /\b(const|let)\B/ with "$1 "
+// Replace [/\Bof\s*/] With [ of ]
 ;
 'use strict';
+
 var reportError = function (element) {
   var DEBUG = false;
   // window.scrollTo(0, 0);
@@ -9,19 +12,19 @@ var reportError = function (element) {
   }
   DEBUG && console.log(element);
   var txt = element.textContent || element.value;
-
   var infoDiv = document.createElement('div');
   infoDiv.className = 'report-json-error';
-  // infoDiv.style = 'position: fixed; top: 2em; left: 2em; opacity: 0.2;';
-  infoDiv.style = 'opacity: 0.2;';
-  var closingLink = document.createElement('a');
+  infoDiv.style = 'position: fixed; top: 40%; left: 20%; opacity: 0.2;';
+
+  var close = document.createElement('div');
+  // NOTE &Cross; is not available in Firefox for Android.
+  close.innerHTML = '&cross;';
+  close.align = 'left';
   var closeOverlay = function (event) {
     document.body.removeChild(event.target.parentElement);
   };
-  closingLink.onclick = closeOverlay;
-  closingLink.textContent = 'Close';
-  closingLink.style = 'text-align: right';
-  infoDiv.appendChild(closingLink);
+  close.onclick = closeOverlay;
+  infoDiv.appendChild(close);
   var info = document.createElement('textarea');
   info.style = 'border: solid limegreen 0.2em; background: white; resize: both;';
   info.readOnly = true;
@@ -52,7 +55,7 @@ var reportError = function (element) {
     e.stopPropagation();
     infoDiv.style.left = infoDiv.offsetLeft + 'px';
     infoDiv.style.top = infoDiv.offsetTop + 'px';
-    infoDiv.style.position = 'absolute';
+    // infoDiv.style.position = 'absolute';
     infoDiv.style.transition = '';
     infoDiv.style.opacity = 0.9;
   }, false);
@@ -60,24 +63,19 @@ var reportError = function (element) {
   //   e.stopPropagation();
   // });
   true && info.addEventListener('mousemove', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
     if (e.buttons == 1) {
+      // e.preventDefault();
+      e.stopPropagation();
       infoDiv.style.left = (e.clientX - (((e.clientX - infoDiv.offsetLeft) > infoDiv.offsetWidth * 0.5) ? infoDiv.offsetWidth * 1 : infoDiv.offsetWidth * 0)) + 'px';
       infoDiv.style.top = (e.clientY - (((e.clientY - infoDiv.offsetTop) > infoDiv.offsetHeight * 0.5) ? infoDiv.offsetHeight * 1 : infoDiv.offsetHeight * 0)) + 'px';
     }
   }, false);
   info.addEventListener('touchmove', function (e) {
-    e.stopPropagation();
     var touchY = e.touches[e.touches.length - 1].clientY;
     var touchX = e.touches[e.touches.length - 1].clientX;
     if ((touchY - infoDiv.offsetTop) < infoDiv.offsetHeight * 0.9 || (touchX - infoDiv.offsetLeft) < infoDiv.offsetWidth * 0.9) {
-      e.preventDefault();
-      // infoDiv.offsetTop and infoDiv.offsetLeft are readonly properties.
-      // infoDiv.style.top = (touchY /*- infoDiv.offsetHeight * 0.5*/) + 'px';
-      // infoDiv.style.left = (touchX /*- infoDiv.offsetWidth * 0.5*/) + 'px';
-      // infoDiv.style.left = (touchX - (((touchX - infoDiv.offsetLeft) > infoDiv.offsetWidth * 0.5) ? infoDiv.offsetWidth * 1 : infoDiv.offsetWidth * 0)) + 'px';
-      // infoDiv.style.top = (touchY - (((touchY - infoDiv.offsetTop) > infoDiv.offsetHeight * 0.5) ? infoDiv.offsetHeight * 1 : infoDiv.offsetHeight * 0)) + 'px';
+      e.stopPropagation();
+      // e.preventDefault();
       infoDiv.style.left = (touchX - (((touchX - infoDiv.offsetLeft) > infoDiv.offsetWidth * 0.5) ? infoDiv.offsetWidth * 0.1 : infoDiv.offsetWidth * 0.9)) + 'px';
       infoDiv.style.top = (touchY - (((touchY - infoDiv.offsetTop) > infoDiv.offsetHeight * 0.5) ? infoDiv.offsetHeight * 0.1 : infoDiv.offsetHeight * 0.9)) + 'px';
     }
@@ -92,11 +90,19 @@ var reportError = function (element) {
       type: 'text/plain; charset=utf-8'
     });
     download.href = window.URL.createObjectURL(blob);
-    download.download = 'report-json-parse-error-' + (data.total_rows || data.length || typeof d == "object" && Object.keys(d).length) + '-' + Date.now() + '.txt';
+    download.download = 'report-json-parse-error-' + (data.total_rows || data.length || typeof d == 'object' && Object.keys(d).length) + '-' + Date.now() + '.txt';
     download.textContent = 'Download exported data';
     div.appendChild(download);
     infoDiv.appendChild(div);
   } catch (e) {
+    var reportProperties = function (propArray) {
+      JSON.stringify(propArray.map(function (expression) {
+        var info = {
+        };
+        info[expression] = eval(expression);
+        return info;
+      }), null, 2);
+    };
     var matches = e.message.match(/\bline (\d+) column (\d+)\b/);
     var line = matches[1];
     var column = matches[2];
@@ -104,17 +110,35 @@ var reportError = function (element) {
     var lineText = txt.split(/\n/) [line - 1];
     var sel = window.getSelection();
     sel.removeAllRanges();
-    DEBUG && alert(JSON.stringify([
-      txt.length,
-      charOffset,
-      element.textContent.length,
+    // Replace [/^(\s+)([^ \t,]+)(,?)$/] With [$1"$2"$3]
+    // TODO: Does not work. scoping issue?
+    // DEBUG && window.alert(reportProperties([
+    //   'txt.length',
+    //   'charOffset',
+    //   'element.textContent.length',
+    //   // element.firstChild.textContent.length,
+    //   // element.firstElementChild.textContent.length,
+    //   'element.parentElement.childElementCount',
+    //   'element.childElementCount',
+    //   'element.nodeType',
+    //   'element.localName'
+    // ]));
+    DEBUG && window.alert(JSON.stringify([
+      'txt.length',
+      'charOffset',
+      'element.textContent.length',
       // element.firstChild.textContent.length,
       // element.firstElementChild.textContent.length,
-      element.parentElement.childElementCount,
-      element.childElementCount,
-      element.nodeType,
-      element.localName
-    ], null, 2));
+      'element.parentElement.childElementCount',
+      'element.childElementCount',
+      'element.nodeType',
+      'element.localName'
+    ].map(function (expression) {
+      var info = {
+      };
+      info[expression] = eval(expression);
+      return info;
+    }), null, 2));
     info.value = e.message + '\nat ';
     info.value += (new Number(charOffset / txt.length * 100)).toFixed(1);
     info.value += '% of data\ncharOffset at line ' + line + ' column ';
@@ -122,27 +146,42 @@ var reportError = function (element) {
     info.value += ') = ' + txt.charCodeAt(charOffset) + '\ncharAt(';
     info.value += charOffset + ') = ' + JSON.stringify(txt.charAt(charOffset));
     if (txt.length > charOffset) {
-      DEBUG && console.log(txt.length, charOffset);
+      // DEBUG && window.alert(reportProperties(['txt.length',
+      //                                         'charOffset']));
+      DEBUG && window.alert(JSON.stringify([
+        'txt.length',
+        'element.nodeType',
+        'element.firstChild.textContent',
+        'element.firstChild.nodeType',
+        'element.firstChild.nodeName',
+        'txt',
+        'charOffset',
+        'element.textContent',
+        'element.innerHTML'
+      ].map(function (expression) {
+        var info = {
+        };
+        info[expression] = eval(expression);
+        return info;
+      }), null, 2));
       if (element.textContent) {
-      var r = document.createRange();
-      r.setStart(element, (txt.length > charOffset) ? (charOffset - 1)  : (txt.length - 1));
-      // r.setStart(element, charOffset - 1);
-      r.setEnd(element, (txt.length > (charOffset + 1)) ? charOffset + 2 : ((txt.length > charOffset) ? charOffset : txt.length));
-      sel.addRange(r);
-      sel.collapsed = false;
-      var cbr = r.getBoundingClientRect();
-      window.scrollTo(cbr.x, cbr.y);
-      // info.style = 'position: absolute; opacity: 0.9; top: ' +
-      // cbr.bottom + 'px; left: ' + cbr.right + 'px; border: solid red 0.2em; background: white;';
+        var r = document.createRange();
+        if (element.firstChild.nodeName != "#text") {
+          info.value = 'element seems to have non-text children, not the expected text node with JSON data.\n\n' + info.value;
+          return;
+        }
+        r.setStart(element.firstChild, (txt.length > charOffset) ? (charOffset - 1)  : (txt.length - 1));
+        r.setEnd(element.firstChild, (txt.length > (charOffset + 1)) ? charOffset + 2 : ((txt.length > charOffset) ? charOffset : txt.length));
+        sel.addRange(r);
+        sel.collapsed = false;
+        var cbr = r.getBoundingClientRect();
+        window.scrollTo(cbr.x, cbr.y);
+        // info.style = 'position: absolute; opacity: 0.9; top: ' +
+        // cbr.bottom + 'px; left: ' + cbr.right + 'px; border: solid red 0.2em; background: white;';
       }
       if (element.value) {
-      var r = document.createRange();
-      element.selectionStart = (txt.length > charOffset) ? (charOffset - 1)  : (txt.length - 1);
-      // r.setStart(element, charOffset - 1);
-      element.selectionEnd = (txt.length > (charOffset + 1)) ? charOffset + 2 : ((txt.length > charOffset) ? charOffset : txt.length);
-      element.scrollIntoView();
-      // info.style = 'position: absolute; opacity: 0.9; top: ' +
-      // cbr.bottom + 'px; left: ' + cbr.right + 'px; border: solid red 0.2em; background: white;';
+        element.selectionStart = (txt.length > charOffset) ? (charOffset - 1)  : (txt.length - 1);
+        element.selectionEnd = (txt.length > (charOffset + 1)) ? charOffset + 2 : ((txt.length > charOffset) ? charOffset : txt.length);
       }
     } else {
       info.value = 'JSON error offset is beyond first ' + element.nodeName + ' node.\n' + info.value;
@@ -161,12 +200,3 @@ if (typeof exports === 'undefined') {
 } else {
   exports.reportError = reportError;
 }
-
-/*
-Exception: IndexSizeError: Index or size is negative or greater than the allowed amount
-@Scratchpad/3:128:0
-*/
-/*
-Exception: IndexSizeError: Index or size is negative or greater than the allowed amount
-@Scratchpad/3:128:0
-*/
