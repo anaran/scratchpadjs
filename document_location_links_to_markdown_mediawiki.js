@@ -69,6 +69,9 @@ var addSingleLink = function (title, href) {
   topLink.textContent = 'Top';
   singleLinkContainer.appendChild(topLink);
 };
+if (document.referrer) {
+  addSingleLink("document.referrer", document.referrer);
+}
 addSingleLink(document.title, document.location.href);
 var summary = document.createElement('h2');
 summary.textContent = "Page has " + document.links.length + " links listed below."
