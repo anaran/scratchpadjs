@@ -56,8 +56,9 @@
   // https://developer.mozilla.org/en-US/docs/Web/API/Window.open#Return_value_and_parameters
   // let strWindowFeatures = 'resizable=yes,scrollbars=yes,toolbar=yes';
   // let strWindowFeatures = 'dialog=yes';
-  let strWindowFeatures = 'width=400,height=100,top=10,left=10,dialog=yes';
-  if (!window instanceof ChromeWindow) {
+  // let strWindowFeatures = 'width=600,height=200,top=10,left=10,dialog=yes';
+  let strWindowFeatures = 'width=600,height=200,top=10,left=10';
+  if (!("ChromeWindow" in window)) {
     window.alert((new Error()).stack.split('\n') [0] + ' needs to run in Environment->Browser');
     return;
   }
@@ -110,4 +111,64 @@
     var path = event.target.files[0].mozFullPath;
     openScratchpad(path);
   }, false);
+  var scratchpads = [
+  ];
+  // See Scratchpad.ScratchpadManager.saveOpenWindows.toSource()
+  var getSaved = function getSaved(window) {
+    var state = window.Scratchpad.getState();
+    return (state.saved ? '__' : '*_') + state.filename + ' ('
+    + (state.executionContext == window.SCRATCHPAD_CONTEXT_BROWSER
+    ? 'Browser' : 'Content')
+    + ')';
+  };
+  var getPath = function getPath(window) {
+    var state = window.Scratchpad.getState();
+    console.log(state.filename);
+    return state.filename;
+  };
+  var focusScratchpad = function focusScratchpad(obj) {
+    return function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      obj.focus();
+    };
+  };
+  var buildLinksDiv = function buildLinksDiv(info, tabs, getLabel, getLink, clickFunc) {
+    var d = content.document;
+    var div = d.createElement('div');
+    var header = d.createElement('h1');
+    header.textContent = info;
+    div.appendChild(header);
+    var links = d.createElement('ol');
+    div.appendChild(links);
+    for (var i = 0; i < tabs.length; i++) {
+      var item = d.createElement('li');
+      var link = d.createElement('a');
+      link.textContent = getLabel(tabs[i]);
+      link.href = getLink(tabs[i]);
+      // NOTE clickFunc returns a function closing over the current tab.
+      clickFunc && link.addEventListener('click', clickFunc(tabs[i]));
+      item.appendChild(link);
+      links.appendChild(item);
+    }
+    // div.style = "position: fixed; width: 60%; height: 60%; overflow: auto; top: 20%; left: 20%; opacity: 0.9; background: white;"
+    // div.style = "position: fixed; overflow: scroll; top: 2em; right: 2em; bottom: 2em; left: 2em; opacity: 0.9; background: white;"
+    return div;
+  };
+  var enumerator = Services.wm.getEnumerator('devtools:scratchpad');
+  while (enumerator.hasMoreElements()) {
+    var win = enumerator.getNext();
+    if (!win.closed && win.Scratchpad.initialized) {
+      console.log(win.Scratchpad);
+      scratchpads.push(win);
+    }
+  }
+  // TODO: show list of recent files as well, links should actually open them, or focus when already open.
+  var spInfo = 'Browser has ' + scratchpads.length + ' Scratchpads';
+  var spDiv = buildLinksDiv(spInfo, scratchpads, getSaved, getPath, focusScratchpad);
+  myDocument.body.appendChild(spDiv);
+  // myDocument.body.style = '';
+  spDiv.style = '/* border: dashed 2px; */overflow: auto; position: fixed; top: 5em; height: calc(100% - 5em); width: 100%;'
+  spDiv.children[0].style = 'position: fixed; top: 2em;'
+  spDiv.children[1].style = 'position: absolute; top: 2em; left: 0;'
 }) ();
