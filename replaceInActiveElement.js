@@ -10,10 +10,36 @@
 // TODO This does not work in Scratchpad:
 // Replace:/\n\s*(\/\/\$NON-NLS)/m
 // With: $1
-'use strict';
+;
 //$NON-NLS-0$
-let gep = require('./getElementPath');
 (function () {
+  'use strict';
+  var ae = document.activeElement;
+  let gep = require('./getElementPath');
+  let html = require('html!./replaceInActiveElement.html');
+  // window.alert(html);
+  // TODO: How can I load a template via webpack?
+  var d = document.createElement('div');
+  // TODO: We really don't want to use innerHTML!
+  d.innerHTML = html;
+  document.body.appendChild(d);
+  if ('content' in document.createElement('template')) {
+    var t = document.querySelector('#replaceInActiveElementTemplate');
+    var from = t.content.querySelector('#from');
+    from.value = /<iframe[^>]+https:\/\/www\.youtube\.com\/embed\/([^\/]+)\/[^>]+><\/iframe>/g.toString();
+    var to = t.content.querySelector('#to');
+    to.value = "{{EmbedYouTube(\"$1\")}}";
+    var replace = t.content.querySelector('#replace');
+    var clone = document.importNode(t.content, true);
+    replace.onclick = function () {
+      // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
+      let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
+      let regexp = new RegExp(captureGroups[1], captureGroups[2]);
+      replaceInActiveElement(regexp, to.value, ae);
+    }
+    document.body.appendChild(clone);
+  }
+  let css = require('style!css!./replaceInActiveElement.css');
   if (window.hasOwnProperty('Cu')) {
     alert('Run this scratchpad script in Environment->Content');
     return;
@@ -105,7 +131,4 @@ let gep = require('./getElementPath');
   if (!document.activeElement) {
     window.alert('There is no active element to replace in.\nClick inside an editable element to make it active.');
   } 
-  else if (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
-    replaceInActiveElement();
-  }
 }) ();
