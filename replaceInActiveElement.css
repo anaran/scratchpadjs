@@ -1,12 +1,13 @@
 .replaceInActiveElement {
   position: fixed;
-  top: 1em;
+  bottom: 1em;
   left: 2em;
+  border: dashed 2px;
 }
 
 input.from, input.to {
   background: skyblue;
   color: black;
   opacity: 0.8;
-  font-size: large;
+/*   font-size: large; */
 }

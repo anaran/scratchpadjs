@@ -14,6 +14,62 @@
 //$NON-NLS-0$
 (function () {
   'use strict';
+  var DEBUG = true;
+  var setUpDragAndDrop = function (parent, data) {
+      let inputElement = parent.appendChild(document.createElement('input'));
+  inputElement.type = 'file';
+  inputElement.title = 'Drop a file here to open it';
+  inputElement.dropzone = 'copy';
+  inputElement.style.cssText = 'padding: 1em; border: 0.2em silver dashed; position: fixed; top: 2em; left: 2em; opacity: 0.9; background: white';
+  inputElement.addEventListener('dragstart', function (event) {
+    // event.dataTransfer.setData('application/json', data);
+      event.dataTransfer.effectAllowed = 'copy'; //$NON-NLS-0$
+    event.dataTransfer.setData('text/plain; charset=utf-8', data);
+  });
+  inputElement.addEventListener('drop', function (event) {
+    // TODO needed for drop to work!
+    event.preventDefault(); // stops the browser from redirecting.
+    // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
+    // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
+    DEBUG && console.log('event.dataTransfer.types', event.dataTransfer.types);
+    Array.prototype.forEach.call(event.dataTransfer.types, function (type) {
+      DEBUG && console.log({
+        type: type,
+        'getData(type)': event.dataTransfer.getData(type)
+      });
+    });
+    let linkData = event.dataTransfer.getData(event.dataTransfer.types[1]);
+    // let linkData = event.dataTransfer.getData('text/x-moz-url');
+    linkData || console.error({
+      linkData: linkData,
+      types: event.dataTransfer.types
+    });
+    event.target.value = linkData;
+    DEBUG && console.log(JSON.stringify(linkData));
+    // openScratchpad(linkData);
+    // TODO Find an event instead. onload is not the right one.
+    // setTimeout(doImport, 2000);
+    // event.target.files[0].mozFullPath = event.target.value;
+  }, false);
+  document.addEventListener('dragover', function (event) { //$NON-NLS-0$
+    event.preventDefault();
+    if ((event.target === inputElement)) {
+      event.dataTransfer.effectAllowed = 'link'; //$NON-NLS-0$
+      event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
+    } else {
+      event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
+      event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
+    }
+    DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
+    return false;
+  }, false && 'useCapture'); //$NON-NLS-0$ //$NON-NLS-1$
+  inputElement.addEventListener('change', function (event) {
+    DEBUG && console.log('inputElement.outerHTML', inputElement.outerHTML);
+    var path = event.target.files[0].mozFullPath;
+    // openScratchpad(path);
+  }, false);
+
+  };
   var ae = document.activeElement;
   let gep = require('./getElementPath');
   let html = require('html!./replaceInActiveElement.html');
@@ -23,22 +79,52 @@
   // TODO: We really don't want to use innerHTML!
   d.innerHTML = html;
   document.body.appendChild(d);
-  if ('content' in document.createElement('template')) {
-    var t = document.querySelector('#replaceInActiveElementTemplate');
-    var from = t.content.querySelector('#from');
-    from.value = /<iframe[^>]+https:\/\/www\.youtube\.com\/embed\/([^\/]+)\/[^>]+><\/iframe>/g.toString();
-    var to = t.content.querySelector('#to');
-    to.value = "{{EmbedYouTube(\"$1\")}}";
-    var replace = t.content.querySelector('#replace');
-    var clone = document.importNode(t.content, true);
-    replace.onclick = function () {
-      // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
-      let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
-      let regexp = new RegExp(captureGroups[1], captureGroups[2]);
-      replaceInActiveElement(regexp, to.value, ae);
-    }
-    document.body.appendChild(clone);
+  // TODO: I was not able to listen to any events using document.importNode
+  // if ('content' in document.createElement('template')) {
+  //   var t = document.querySelector('#replaceInActiveElementTemplate');
+  // var from = t.content.querySelector('#from');
+  var from = d.querySelector('#from');
+  from.value = /<iframe[^>]+https:\/\/www\.youtube\.com\/embed\/([^\/]+)\/[^>]+><\/iframe>/.toString();
+  // var to = t.content.querySelector('#to');
+  var to = d.querySelector('#to');
+  to.value = "{{EmbedYouTube(\"$1\")}}";
+  var replace = d.querySelector('#replace');
+  var close = d.querySelector('#close');
+  // var replace = t.content.querySelector('#replace');
+  // var close = t.content.querySelector('#close');
+  // var clone = document.importNode(t.content, true);
+  // console.log(replace);
+  to.addEventListener('click', function (e) {
+    // if (e.key === 'Enter' || e.keyCode === 13) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(e, from.value, to.value, ae);
+    // }
+  });
+  close.addEventListener('click', function (e) {
+    // close.onclick = function () {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(e, from.value, to.value, ae);
+    document.body.removeChild(e.target.parentElement.parentElement);
+  });
+  // clone.appendChild(close);
+  // replace.addEventListener('click', function (e) {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   console.log(e.target, from.value, to.value, ae);
+  // });
+  replace.onclick = function () {
+    console.log(this, from.value, to.value, ae);
+    // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
+    let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
+    let regexp = new RegExp(captureGroups[1], captureGroups[2]);
+    window.alert(JSON.stringify([from.value, to.value, gep.getElementPath(ae)], null, 2));
+    replaceInActiveElement(regexp, to.value, ae);
   }
+  setUpDragAndDrop(d, JSON.stringify({ to: to.value, from: from.value }));
+  // document.body.appendChild(clone);
+  // }
   let css = require('style!css!./replaceInActiveElement.css');
   if (window.hasOwnProperty('Cu')) {
     alert('Run this scratchpad script in Environment->Content');
@@ -117,8 +203,14 @@
       }
       if (replacement !== null) {
         try {
-          ae[target] = ae[target].replace(regexp, replacement);
+            var replaceValue;
+          do {
+           replaceValue = ae[target].replace(regexp, replacement);
+            if (window.confirm('replace at ' + regexp.lastIndex + '?')) {
+                  ae[target] = replaceValue;
+            }
           console.log('replaced ae["' + target + '"]', ae[target]);
+          } while (ae[target] != replaceValue);
         } 
         catch (exception) {
           window.alert(exception.toString());
