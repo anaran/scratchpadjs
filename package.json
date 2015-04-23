@@ -1,0 +1,28 @@
+{
+  "name": "scratchpadjs",
+  "version": "1.0.0",
+  "description": "Firefox Scratchpad scripts and modules to build scripts with tools",
+  "main": "none.js",
+  "dependencies": {
+    "css-loader": "^0.10.1",
+    "style-loader": "^0.10.2"
+  },
+  "devDependencies": {
+    "codemirror": "^5.2.0",
+    "gulp": "^3.8.11",
+    "gulp-webpack": "^1.3.2",
+    "html-loader": "^0.2.3",
+    "vinyl-named": "^1.1.0",
+    "webpack": "^1.8.7"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "scratchpad",
+    "firefox",
+    "snippets"
+  ],
+  "author": "anaran",
+  "license": "ISC"
+}

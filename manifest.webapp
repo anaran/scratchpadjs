@@ -1,0 +1,8 @@
+{
+  "name": "scratchpadjs",
+  "description": "Firefox Scratchpad scripts and modules to build scripts with tools",
+  "developer": {
+    "name": "anaran",
+    "url": "https://github.com/anaran/scratchpadjs"
+  }
+}
