@@ -14,106 +14,120 @@
 //$NON-NLS-0$
 (function () {
   'use strict';
+  var dataUriType = 'data:text/plain;charset=utf-8,';
   var DEBUG = true;
-  var setUpDragAndDrop = function (parent, data) {
-      let inputElement = parent.appendChild(document.createElement('input'));
-  inputElement.type = 'file';
-  inputElement.title = 'Drop a file here to open it';
-  inputElement.dropzone = 'copy';
-  inputElement.style.cssText = 'padding: 1em; border: 0.2em silver dashed; position: fixed; top: 2em; left: 2em; opacity: 0.9; background: white';
-  inputElement.addEventListener('dragstart', function (event) {
-    // event.dataTransfer.setData('application/json', data);
-      event.dataTransfer.effectAllowed = 'copy'; //$NON-NLS-0$
-    event.dataTransfer.setData('text/plain; charset=utf-8', data);
-  });
-  inputElement.addEventListener('drop', function (event) {
-    // TODO needed for drop to work!
-    event.preventDefault(); // stops the browser from redirecting.
-    // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
-    // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
-    DEBUG && console.log('event.dataTransfer.types', event.dataTransfer.types);
-    Array.prototype.forEach.call(event.dataTransfer.types, function (type) {
-      DEBUG && console.log({
-        type: type,
-        'getData(type)': event.dataTransfer.getData(type)
-      });
+    window.addEventListener("beforeunload", function (event) {
+        event.returnValue = "unsaved";
     });
-    let linkData = event.dataTransfer.getData(event.dataTransfer.types[1]);
-    // let linkData = event.dataTransfer.getData('text/x-moz-url');
-    linkData || console.error({
-      linkData: linkData,
-      types: event.dataTransfer.types
-    });
-    event.target.value = linkData;
-    DEBUG && console.log(JSON.stringify(linkData));
-    // openScratchpad(linkData);
-    // TODO Find an event instead. onload is not the right one.
-    // setTimeout(doImport, 2000);
-    // event.target.files[0].mozFullPath = event.target.value;
-  }, false);
-  document.addEventListener('dragover', function (event) { //$NON-NLS-0$
-    event.preventDefault();
-    if ((event.target === inputElement)) {
+  var setUpDragAndDropLink = function (inputElement, parent, data) {
+    // inputElement.title = 'Drop a file here to open it';
+    inputElement.dropzone = 'link';
+    inputElement.draggable = true;
+    inputElement.addEventListener('dragstart', function (event) {
+      if (!updateDownloadLinkFromUI(event)) {
+        return;
+      }
       event.dataTransfer.effectAllowed = 'link'; //$NON-NLS-0$
       event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
-    } else {
-      event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
-      event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
-    }
-    DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
-    return false;
-  }, false && 'useCapture'); //$NON-NLS-0$ //$NON-NLS-1$
-  inputElement.addEventListener('change', function (event) {
-    DEBUG && console.log('inputElement.outerHTML', inputElement.outerHTML);
-    var path = event.target.files[0].mozFullPath;
-    // openScratchpad(path);
-  }, false);
+      event.dataTransfer.setData('text/x-moz-url', inputElement.href + '\n' + inputElement.textContent);
+      event.dataTransfer.setData('text/x-moz-url-data', inputElement.href);
+      event.dataTransfer.setData("text/x-moz-url-desc", inputElement.textContent);
+      event.dataTransfer.setData('text/uri-list', inputElement.href);
+      // event.dataTransfer.setData('text/_moz_htmlcontext', "<a href=\"" + inputElement.href);
+      event.dataTransfer.setData('text/_moz_htmlinfo', "0,0");
+      event.dataTransfer.setData('text/html', inputElement.innerHTML);
+      event.dataTransfer.setData('text/plain', inputElement.href);
+      DEBUG && console.log(event.type, data, 'event.dataTransfer.types', event.dataTransfer.types);
+      Array.prototype.forEach.call(event.dataTransfer.types, function (type) {
+        DEBUG && console.log(type, event.dataTransfer.getData(type));
+      });
+    });
+    inputElement.addEventListener('drop', function (event) {
+      // TODO needed for drop to work!
+      event.preventDefault(); // stops the browser from redirecting.
+      // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
+      // event.dataTransfer.effectAllowed = "link"; //$NON-NLS-0$
+      DEBUG && console.log(event.type, 'event.dataTransfer.types', event.dataTransfer.types);
+      Array.prototype.forEach.call(event.dataTransfer.types, function (type) {
+        DEBUG && console.log(type, event.dataTransfer.getData(type));
+        // var linkData = event.dataTransfer.getData(type).split('\n')[0];
+      });
+      var text = event.dataTransfer.getData('text/plain');
+      var data = event.dataTransfer.getData('text/x-moz-url');
+      // event.target.value = linkData;
+      try {
+        var parsedData;
+        if (data.length) {
+          parsedData = JSON.parse(window.decodeURIComponent(data.split('\n')[0].substring(dataUriType.length)));
+        }
+        else if (text.length) {
+          parsedData = JSON.parse(window.decodeURIComponent(text));
+        }
+        else {
+          window.alert('Drop data contains neither type text/plain nor text/x-moz-url data');
+        }
+        to.value = parsedData.to;
+        from.value = parsedData.from;
+      }
+      catch (e) {
+        window.alert(JSON.stringify(e, Object.getOwnPropertyNames(e), 2));
+      }
+    });
+    // NOTE: Needed to set up allowed effects.
+    true && document.addEventListener('dragover', function (event) { //$NON-NLS-0$
+      // event.preventDefault();
+      if ((event.target === json)) {
+        event.dataTransfer.effectAllowed = 'copyLink'; //$NON-NLS-0$
+        event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
+        event.preventDefault();
+        // return false;
+      } else {
+        event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
+        event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
+        // return true;
+      }
+      DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
+      // Alternative to event.preventDefault();
+      // return false;
+    }); //$NON-NLS-0$ //$NON-NLS-1$
+    inputElement.addEventListener('change', function (event) {
+      DEBUG && console.log(event.type, 'inputElement.outerHTML', inputElement.outerHTML);
+      var path = event.target.files[0].mozFullPath;
+      // openScratchpad(path);
+    });
 
   };
   var ae = document.activeElement;
   let gep = require('./getElementPath');
   let html = require('html!./replaceInActiveElement.html');
-  // window.alert(html);
+  var div = document.body.querySelector('body>div#replaceInActiveElement');
+  DEBUG && console.log(div);
+  div && document.body.removeChild(div);
   // TODO: How can I load a template via webpack?
-  var d = document.createElement('div');
+  div = document.createElement('div');
+  div.id = 'replaceInActiveElement';
   // TODO: We really don't want to use innerHTML!
-  d.innerHTML = html;
-  document.body.appendChild(d);
+  div.innerHTML = html;
+  document.body.appendChild(div);
   // TODO: I was not able to listen to any events using document.importNode
   // if ('content' in document.createElement('template')) {
   //   var t = document.querySelector('#replaceInActiveElementTemplate');
   // var from = t.content.querySelector('#from');
-  var from = d.querySelector('#from');
+  var from = div.querySelector('#from');
   from.value = /<iframe[^>]+https:\/\/www\.youtube\.com\/embed\/([^\/]+)\/[^>]+><\/iframe>/.toString();
   // var to = t.content.querySelector('#to');
-  var to = d.querySelector('#to');
+  var to = div.querySelector('#to');
   to.value = "{{EmbedYouTube(\"$1\")}}";
-  var replace = d.querySelector('#replace');
-  var close = d.querySelector('#close');
-  // var replace = t.content.querySelector('#replace');
-  // var close = t.content.querySelector('#close');
-  // var clone = document.importNode(t.content, true);
-  // console.log(replace);
-  to.addEventListener('click', function (e) {
-    // if (e.key === 'Enter' || e.keyCode === 13) {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log(e, from.value, to.value, ae);
-    // }
-  });
+  var json = div.querySelector('#json');
+  var replace = div.querySelector('#replace');
+  var close = div.querySelector('#close');
   close.addEventListener('click', function (e) {
     // close.onclick = function () {
     e.preventDefault();
     e.stopPropagation();
     console.log(e, from.value, to.value, ae);
-    document.body.removeChild(e.target.parentElement.parentElement);
+    document.body.removeChild(div);
   });
-  // clone.appendChild(close);
-  // replace.addEventListener('click', function (e) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   console.log(e.target, from.value, to.value, ae);
-  // });
   replace.onclick = function () {
     console.log(this, from.value, to.value, ae);
     // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
@@ -122,7 +136,21 @@
     window.alert(JSON.stringify([from.value, to.value, gep.getElementPath(ae)], null, 2));
     replaceInActiveElement(regexp, to.value, ae);
   }
-  setUpDragAndDrop(d, JSON.stringify({ to: to.value, from: from.value }));
+  var updateDownloadLinkFromUI = function (event) {
+    if (!from.checkValidity()) {
+      window.alert('Cannot save invalid regular expression, see RegExp Help');
+      event.preventDefault();
+    }
+    DEBUG && console.log('updateDownloadLinkFromUI', event.type, event);
+    json.download = "replaceInActiveElement" + encodeURIComponent(location.origin) + '@' + Date.now() + '.txt';
+    json.href = dataUriType + window.encodeURIComponent(JSON.stringify({ from: from.value, to: to.value }));
+    json.textContent =  'from_' + from.value.replace(/[^0-9a-zA-Z]+/g, '_').substring(0, 10) +
+      '_to_' + to.value.replace(/[^0-9a-zA-Z]+/g, '_').substring(0, 10);
+  };
+  // json.addEventListener('mousedown', updateDownloadLinkFromUI);
+  // json.addEventListener('touchstart', updateDownloadLinkFromUI);
+  json.addEventListener('click', updateDownloadLinkFromUI);
+  setUpDragAndDropLink(json, div);
   // document.body.appendChild(clone);
   // }
   let css = require('style!css!./replaceInActiveElement.css');
@@ -152,7 +180,7 @@
     //
     // Use function source code to do the replacement:
     //
-    replaceInActiveElement(/\b([A-Z])/g, exampleFunction);
+    replaceInActiveElement(/\b([A-Z])/g, f.toString());
   }
   console.info(usage.toString());
   window.replaceInActiveElement = function replaceInActiveElement(regexp, replacement, element) {
@@ -203,13 +231,13 @@
       }
       if (replacement !== null) {
         try {
-            var replaceValue;
+          var replaceValue;
           do {
-           replaceValue = ae[target].replace(regexp, replacement);
+            replaceValue = ae[target].replace(regexp, replacement);
             if (window.confirm('replace at ' + regexp.lastIndex + '?')) {
-                  ae[target] = replaceValue;
+              ae[target] = replaceValue;
             }
-          console.log('replaced ae["' + target + '"]', ae[target]);
+            console.log('replaced ae["' + target + '"]', ae[target]);
           } while (ae[target] != replaceValue);
         } 
         catch (exception) {

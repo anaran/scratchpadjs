@@ -2,12 +2,16 @@
   position: fixed;
   bottom: 1em;
   left: 2em;
-  border: dashed 2px;
+  background: white;
+  opacity: 0.9;
 }
 
 input.from, input.to {
-  background: skyblue;
+  background: azure;
   color: black;
-  opacity: 0.8;
 /*   font-size: large; */
+}
+
+a.json {
+  border: dashed 2px;
 }
