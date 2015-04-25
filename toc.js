@@ -51,7 +51,7 @@ var toc = (function () {
       checkbox.onchange = function () {
         console.log(this.type, this.className || this.id, this.checked);
         buildTocUpdateUi(div);
-      });
+      };
       togglesDiv.appendChild(label);
       label.appendChild(checkbox);
     });
