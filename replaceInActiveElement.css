@@ -1,8 +1,13 @@
 .replaceInActiveElement {
-  position: fixed;
+/*   bottom: calc(-3em); */
   bottom: 1em;
-  left: 2em;
+  left: 1em;
+  position: fixed;
   background: white;
+  opacity: 0.2;
+}
+
+.replaceInActiveElement:hover {
   opacity: 0.9;
 }
 
@@ -10,8 +15,22 @@ input.from, input.to {
   background: azure;
   color: black;
 /*   font-size: large; */
+  width: calc(100% - 2em);
+}
+
+.replaceInActiveElement a {
+  padding: 0.3em;
+  border: 0.2em;
 }
 
 a.json {
-  border: dashed 2px;
+  border: dashed 1px;
+}
+
+a.json:hover {
+  border: solid 2px;
+}
+
+a.json:-moz-drag-over {
+  border: solid 4px;
 }

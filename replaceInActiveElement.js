@@ -16,9 +16,9 @@
   'use strict';
   var dataUriType = 'data:text/plain;charset=utf-8,';
   var DEBUG = true;
-    window.addEventListener("beforeunload", function (event) {
-        event.returnValue = "unsaved";
-    });
+  window.addEventListener("beforeunload", function (event) {
+    event.returnValue = "unsaved";
+  });
   var setUpDragAndDropLink = function (inputElement, parent, data) {
     // inputElement.title = 'Drop a file here to open it';
     inputElement.dropzone = 'link';
@@ -27,8 +27,8 @@
       if (!updateDownloadLinkFromUI(event)) {
         return;
       }
-      event.dataTransfer.effectAllowed = 'link'; //$NON-NLS-0$
-      event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
+      event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
+      // event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
       event.dataTransfer.setData('text/x-moz-url', inputElement.href + '\n' + inputElement.textContent);
       event.dataTransfer.setData('text/x-moz-url-data', inputElement.href);
       event.dataTransfer.setData("text/x-moz-url-desc", inputElement.textContent);
@@ -74,27 +74,31 @@
       }
     });
     // NOTE: Needed to set up allowed effects.
-    true && document.addEventListener('dragover', function (event) { //$NON-NLS-0$
-      // event.preventDefault();
+    var checkDragTargetAndData = function (event) { //$NON-NLS-0$
+      event.preventDefault();
       if ((event.target === json)) {
-        event.dataTransfer.effectAllowed = 'copyLink'; //$NON-NLS-0$
+        // div.focus();
+        event.dataTransfer.effectAllowed = 'copy'; //$NON-NLS-0$
         event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
-        event.preventDefault();
+        // event.preventDefault();
         // return false;
       } else {
+        // div.blur();
         event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
         event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
         // return true;
       }
       DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
       // Alternative to event.preventDefault();
-      // return false;
-    }); //$NON-NLS-0$ //$NON-NLS-1$
-    inputElement.addEventListener('change', function (event) {
-      DEBUG && console.log(event.type, 'inputElement.outerHTML', inputElement.outerHTML);
-      var path = event.target.files[0].mozFullPath;
-      // openScratchpad(path);
-    });
+      return false;
+    };
+    true && document.addEventListener('dragover', checkDragTargetAndData); //$NON-NLS-0$ //$NON-NLS-1$
+    true && document.addEventListener('dragenter', checkDragTargetAndData); //$NON-NLS-0$ //$NON-NLS-1$
+    // inputElement.addEventListener('change', function (event) {
+    //   DEBUG && console.log(event.type, 'inputElement.outerHTML', inputElement.outerHTML);
+    //   var path = event.target.files[0].mozFullPath;
+    //   // openScratchpad(path);
+    // });
 
   };
   var ae = document.activeElement;
@@ -142,10 +146,10 @@
       event.preventDefault();
     }
     DEBUG && console.log('updateDownloadLinkFromUI', event.type, event);
-    json.download = "replaceInActiveElement" + encodeURIComponent(location.origin) + '@' + Date.now() + '.txt';
-    json.href = dataUriType + window.encodeURIComponent(JSON.stringify({ from: from.value, to: to.value }));
+    json.href = dataUriType + window.encodeURIComponent(JSON.stringify({ from: from.value, to: to.value }, null, 2));
     json.textContent =  'from_' + from.value.replace(/[^0-9a-zA-Z]+/g, '_').substring(0, 10) +
       '_to_' + to.value.replace(/[^0-9a-zA-Z]+/g, '_').substring(0, 10);
+    json.download = json.textContent + window.encodeURIComponent(location.hostname) + '@' + Date.now() + '.txt';
   };
   // json.addEventListener('mousedown', updateDownloadLinkFromUI);
   // json.addEventListener('touchstart', updateDownloadLinkFromUI);
