@@ -4,18 +4,18 @@
   left: 1em;
   position: fixed;
   background: white;
-  opacity: 0.2;
+/*   opacity: 0.2; */
 }
 
-.replaceInActiveElement:hover {
+/* .replaceInActiveElement:hover {
   opacity: 0.9;
-}
+} */
 
 input.from, input.to {
   background: azure;
   color: black;
 /*   font-size: large; */
-  width: calc(100% - 2em);
+  width: calc(100% - 5em);
 }
 
 .replaceInActiveElement a {

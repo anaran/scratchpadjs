@@ -27,7 +27,7 @@
       if (!updateDownloadLinkFromUI(event)) {
         return;
       }
-      event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
+      event.dataTransfer.effectAllowed = 'copyLink'; //$NON-NLS-0$
       // event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
       event.dataTransfer.setData('text/x-moz-url', inputElement.href + '\n' + inputElement.textContent);
       event.dataTransfer.setData('text/x-moz-url-data', inputElement.href);
@@ -78,14 +78,23 @@
       event.preventDefault();
       if ((event.target === json)) {
         // div.focus();
-        event.dataTransfer.effectAllowed = 'copy'; //$NON-NLS-0$
-        event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
+        event.dataTransfer.effectAllowed = 'copyLink'; //$NON-NLS-0$
+        if (event.dataTransfer.getData('text/x-moz-url').length) {
+          event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
+        }
+        else if (event.dataTransfer.getData('text/plain').length) {
+          event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
+        }
+        else {
+          event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
+          // event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
+        }
         // event.preventDefault();
         // return false;
       } else {
         // div.blur();
         event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
-        event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
+        // event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
         // return true;
       }
       DEBUG && console.log(event.type, event.dataTransfer.files, event.target);
@@ -124,6 +133,7 @@
   to.value = "{{EmbedYouTube(\"$1\")}}";
   var json = div.querySelector('#json');
   var replace = div.querySelector('#replace');
+  var dim = div.querySelector('#dim');
   var close = div.querySelector('#close');
   close.addEventListener('click', function (e) {
     // close.onclick = function () {
@@ -132,6 +142,15 @@
     console.log(e, from.value, to.value, ae);
     document.body.removeChild(div);
   });
+  dim.onchange = function () {
+    console.log(this.type, this.className || this.id, this.checked);
+    if (this.checked) {
+      div.style.opacity = 0.2;
+    }
+    else {
+      div.style.opacity = 0.9;
+    }
+  };
   replace.onclick = function () {
     console.log(this, from.value, to.value, ae);
     // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
@@ -139,7 +158,7 @@
     let regexp = new RegExp(captureGroups[1], captureGroups[2]);
     window.alert(JSON.stringify([from.value, to.value, gep.getElementPath(ae)], null, 2));
     replaceInActiveElement(regexp, to.value, ae);
-  }
+  };
   var updateDownloadLinkFromUI = function (event) {
     if (!from.checkValidity()) {
       window.alert('Cannot save invalid regular expression, see RegExp Help');

@@ -48,8 +48,8 @@ var toc = (function () {
       checkbox.name = toggle;
       checkbox.value = toggle;
       checkbox.checked = false;
-      checkbox.addEventListener('change', function (event) {
-        console.log(event.type, event.target, event.target.checked);
+      checkbox.onchange = function () {
+        console.log(this.type, this.className || this.id, this.checked);
         buildTocUpdateUi(div);
       });
       togglesDiv.appendChild(label);
