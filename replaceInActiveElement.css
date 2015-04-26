@@ -23,6 +23,14 @@ input.from, input.to {
   border: 0.2em;
 }
 
+input.dim {
+  display: none;
+}
+
+#examples {
+    width: 20em;
+}
+
 a.json {
   border: dashed 1px;
 }

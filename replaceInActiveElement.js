@@ -16,6 +16,15 @@
   'use strict';
   var dataUriType = 'data:text/plain;charset=utf-8,';
   var DEBUG = true;
+  var examples = [{
+    "comment": "Convert to EmbedYouTube macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
+    "from": "/<iframe[^>]+https:\\/\\/www\\.youtube\\.com\\/embed\\/([^\\/]+)[\\/?][^>]+><\\/iframe>/g",
+    "to": "{{EmbedYouTube(\"$1\")}}"
+  }, {
+    "comment": "Convert to JSFiddleEmbed macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
+    "from": "/<iframe.+height=\"(\\d+)\" src=\"(https:\\/\\/jsfiddle.net\\/.+)embedded\\/\".*><\\/iframe>/g",
+    "to": "{{JSFiddleEmbed(\"$2\",\"\",\"$1\")}}"
+  }];
   window.addEventListener("beforeunload", function (event) {
     event.returnValue = "unsaved";
   });
@@ -135,6 +144,33 @@
   var replace = div.querySelector('#replace');
   var dim = div.querySelector('#dim');
   var close = div.querySelector('#close');
+  var exampleSelect = div.querySelector('#examples');
+  examples.forEach(function (example) {
+    var opt = document.createElement("option");
+    opt.value = JSON.stringify(example, null, 2);
+    opt.text = example.comment;
+    exampleSelect.add(opt, null);
+  });
+  var updateUiFromSelectedOption = function (event) {
+    DEBUG && console.log(event.type, this);
+    var parsedValue = JSON.parse(this.value);
+    div.title = parsedValue.comment;
+    from.value = parsedValue.from;
+    to.value = parsedValue.to;
+  };
+  // exampleSelect.onclick = updateUiFromSelectedOption;
+  exampleSelect.onchange = updateUiFromSelectedOption;
+  var clearExampleSelection = function (event) {
+    DEBUG && console.log(event.type, event);
+    // if (event.target.readyState == 'complete') {
+    //   examples.selectedIndex = -1;
+    // }
+  };
+  exampleSelect.selectedIndex = -1;
+  // window.setTimeout(function () {
+  // }, 3000);
+  document.addEventListener('readystatechange', clearExampleSelection);
+  document.addEventListener('load', clearExampleSelection);
   close.addEventListener('click', function (e) {
     // close.onclick = function () {
     e.preventDefault();
