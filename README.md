@@ -24,11 +24,11 @@ Standalone script I use to get a quick overview of long webpages not featuring a
 
 One such example are long README.md files at github, e.g. [mozilla-b2g/gaia](https://github.com/mozilla-b2g/gaia) to take a random pick.
 
-~~### Old Content
+~~### Old Content~~
 
-These are my snippets not yet part of some upstream effort.
+~~These are my snippets not yet part of some upstream effort.~~
 
-See
-(#/file/adrian/devtools-snippets/snippets/html_i18n_content.js)
-or
-https://github.com/anaran/devtools-snippets.git for my first generally useful snippet, html_i18n_content.js~~
+~~See~~
+~~(#/file/adrian/devtools-snippets/snippets/html_i18n_content.js)~~
+~~or~~
+~~https://github.com/anaran/devtools-snippets.git for my first generally useful snippet, html_i18n_content.js~~
