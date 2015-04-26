@@ -15,7 +15,7 @@
 (function () {
   'use strict';
   var dataUriType = 'data:text/plain;charset=utf-8,';
-  var DEBUG = true;
+  var DEBUG = false;
   var examples = [{
     "comment": "Convert to EmbedYouTube macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
     "from": "/<iframe[^>]+https:\\/\\/www\\.youtube\\.com\\/embed\\/([^\\/]+)[\\/?][^>]+><\\/iframe>/g",
@@ -86,12 +86,16 @@
     var checkDragTargetAndData = function (event) { //$NON-NLS-0$
       event.preventDefault();
       if ((event.target === json)) {
-        // div.focus();
+        DEBUG && console.log(event.type, 'event.dataTransfer.types', event.dataTransfer.types);
         event.dataTransfer.effectAllowed = 'copyLink'; //$NON-NLS-0$
-        if (event.dataTransfer.getData('text/x-moz-url').length) {
+        if (Array.prototype.some.call(event.dataTransfer.types, function (type) {
+          return type == 'text/x-moz-url';
+        })) {
           event.dataTransfer.dropEffect = 'link'; //$NON-NLS-0$
         }
-        else if (event.dataTransfer.getData('text/plain').length) {
+        else if (Array.prototype.some.call(event.dataTransfer.types, function (type) {
+          return type == 'text/plain';
+        })) {
           event.dataTransfer.dropEffect = 'copy'; //$NON-NLS-0$
         }
         else {
@@ -101,7 +105,6 @@
         // event.preventDefault();
         // return false;
       } else {
-        // div.blur();
         event.dataTransfer.effectAllowed = 'none'; //$NON-NLS-0$
         // event.dataTransfer.dropEffect = 'none'; //$NON-NLS-0$
         // return true;
@@ -111,6 +114,7 @@
       return false;
     };
     true && document.addEventListener('dragover', checkDragTargetAndData); //$NON-NLS-0$ //$NON-NLS-1$
+    // NOTE: Needed for :-moz-drag-over CSS pseudoclass to apply (not checked during dragover)
     true && document.addEventListener('dragenter', checkDragTargetAndData); //$NON-NLS-0$ //$NON-NLS-1$
     // inputElement.addEventListener('change', function (event) {
     //   DEBUG && console.log(event.type, 'inputElement.outerHTML', inputElement.outerHTML);
