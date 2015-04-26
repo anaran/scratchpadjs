@@ -1,30 +1,30 @@
-= Firefox Scratchpad scripts and modules to build scripts with tools
+# Firefox Scratchpad scripts and modules to build scripts with tools
 
-== Tooling
+## Tooling
 
-=== webpack
+### webpack
 
 webpack works real well for my `replaceInActiveElement.js` script.
 
-The script gets built by [gulp.task("webpack", ...)](gulpfile.js) from following modules:
+The script gets built by [gulp.task("webpack", ...)](gulpfile.js#L4) from following modules:
 
 * replaceInActiveElement.css
 * replaceInActiveElement.html
 * replaceInActiveElement.js
 
-== Featured Scripts
+## Featured Scripts
 
-=== replaceInActiveElement.js
+### replaceInActiveElement.js
 
 I have used that at `MDN` to contribute to the [Remove in-content iframes](https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes) effort.
 
-=== toc.js
+### toc.js
 
 Standalone script I use to get a quick overview of long webpages not featuring an index, either by sidebar or navigateable index.
 
 One such example are log README.md files at github, e.g. [mozilla-b2g/gaia](https://github.com/mozilla-b2g/gaia) to take a random pick.
 
-=== Old Content
+### Old Content
 
 These are my snippets not yet part of some upstream effort.
 
