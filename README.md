@@ -18,6 +18,8 @@ The script gets built by [gulp.task("webpack", ...)](gulpfile.js#L4) from follow
 
 I have used that at `MDN` to contribute to the [Remove in-content iframes](https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes) effort.
 
+Look [here](https://github.com/anaran/scratchpadjs/blob/master/replaceInActiveElement.js#L19-L27) for the currently available replacement definitions. You can always write your own and contribute back. You can download a definition by clicking the `JSON` link, or opening it in a new tab, or dragging it to the desktop (this one creates a link).
+
 ### toc.js
 
 Standalone script I use to get a quick overview of long webpages not featuring an index, either by sidebar or navigateable index.
