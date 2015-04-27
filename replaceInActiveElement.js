@@ -17,6 +17,10 @@
   var dataUriType = 'data:text/plain;charset=utf-8,';
   var DEBUG = false;
   var examples = [{
+    "comment": "Convert MDN link text to URL.pathname",
+    "from": "/<a href=\"https:\\/\\/developer\\.mozilla\\.org(.+)\">.+<\\/a>/g",
+    "to": "<a href=\"https://developer.mozilla.org$1\">$1</a></li>"
+  }, {
     "comment": "Convert to EmbedYouTube macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
     "from": "/<iframe[^>]+https:\\/\\/www\\.youtube\\.com\\/embed\\/([^\\/]+)[\\/?][^>]+><\\/iframe>/g",
     "to": "{{EmbedYouTube(\"$1\")}}"
