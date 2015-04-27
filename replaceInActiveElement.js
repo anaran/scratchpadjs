@@ -22,8 +22,8 @@
     "to": "{{EmbedYouTube(\"$1\")}}"
   }, {
     "comment": "Convert to JSFiddleEmbed macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
-    "from": "/<iframe.+height=\"(\\d+)\" src=\"(https:\\/\\/jsfiddle.net\\/.+)embedded\\/\".*><\\/iframe>/g",
-    "to": "{{JSFiddleEmbed(\"$2\",\"\",\"$1\")}}"
+    "from": "/<iframe.+height=\"(\\d+)\" src=\"(https:\\/\\/jsfiddle.net\\/.+)embedded\\/([a-z,]*)\\/?\".*><\\/iframe>/g",
+    "to": "{{JSFiddleEmbed(\"$2\",\"$3\",\"$1\")}}"
   }];
   window.addEventListener("beforeunload", function (event) {
     event.returnValue = "unsaved";
