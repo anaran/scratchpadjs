@@ -10,10 +10,11 @@
     mod(CodeMirror);
 }) (function (CodeMirror) {
   'use strict';
+  // Keep state across calls to setupHelpTypes, so that Editor buffer won't get overwritten.
+  var buffers = {
+  };
   var setupHelpTypes = function(cm, options) {
     var bufferNames = Object.keys(options);
-    var buffers = {
-    };
     var wrap = cm.getWrapperElement();
     var sel = document.body.querySelector('select.CodeMirror-help');
     sel && sel.parentElement.removeChild(sel);
@@ -22,8 +23,19 @@
     bufferNames.forEach(function(name) {
       var optHelp = document.createElement('option');
       optHelp.text = name;
-      // optHelp.defaultSelected = true;
-      buffers[name] = CodeMirror.Doc(options[name], 'javascript');
+      var doc = CodeMirror.Doc(options[name], 'javascript');
+      buffers[name] = doc;
+      doc.markText(doc.posFromIndex(0),
+                   doc.posFromIndex(doc.getValue().length), {
+                     // inclusiveLeft: true,
+                     // inclusiveRight: true,
+                     // Did not seem to work (using CTRL-Z to test).
+                     // Perhaps this is due to readOnly clearing undo history?
+                     addToHistory: true,
+                     readOnly: true });
+      console.log('doc', doc);
+      console.log(doc.getAllMarks());
+      // buffers[name].cm.readOnly = true;
       sel.add(optHelp, null);
     });
     var optEditor = document.createElement('option');
@@ -37,20 +49,35 @@
     });
     wrap.parentElement.appendChild(sel);
     console.log(sel);
-    buffers['Editor'] = cm.swapDoc(buffers[sel.value]);
+    if (!buffers['Editor']) {
+      buffers['Editor'] = cm.swapDoc(buffers[sel.value]);
+    }
   };
   var getCommandsHelp = function(cm) {
-    return JSON.stringify({
-      'typeof cm': typeof cm,
-      'Object.keys(CodeMirror.commands).length': Object.keys(CodeMirror.commands).length,
-      'Object.keys(CodeMirror.commands).sort()': Object.keys(CodeMirror.commands).sort()
-    }, null, 2);
+    try {
+      return JSON.stringify({
+        'Object.keys(CodeMirror.commands).length': Object.keys(CodeMirror.commands).length,
+        'Object.keys(CodeMirror.commands).sort()': Object.keys(CodeMirror.commands).sort()
+      }, null, 2);
+    }
+    catch (ex) {
+      console.exception(ex);
+      return JSON.stringify(ex, Object.getOwnPropertyNames(ex), 2);
+    }
   };
   var getDefaultsHelp = function(cm) {
-    return JSON.stringify({
-      'Object.keys(CodeMirror.defaults).length': Object.keys(CodeMirror.defaults).length,
-      'Object.keys(CodeMirror.defaults).sort()': Object.keys(CodeMirror.defaults).sort()
-    }, null, 2);
+    try {
+      return JSON.stringify(CodeMirror.defaults, Object.keys(CodeMirror.defaults).sort(), 2);
+      // return 
+      // 'Object.keys(CodeMirror.defaults).length: ' +
+      //   Object.keys(CodeMirror.defaults).length + '\n' +
+      //   JSON.stringify(CodeMirror.defaults, null, 2) + '\n' +
+      //   JSON.stringify(Object.keys(CodeMirror.defaults).sort(), null, 2);
+    }
+    catch (ex) {
+      console.exception(ex);
+      return JSON.stringify(ex, Object.getOwnPropertyNames(ex), 2);
+    }
   };
   var getOptionsHelp = function(cm) {
     try {
@@ -65,14 +92,21 @@
     }
   };
   var getKeyMapHelp = function(cm) {
-    var keyMapName = cm.getOption('keyMap');
-    var keyMapFallthrough = CodeMirror.keyMap[keyMapName].fallthrough;
-    return JSON.stringify({
-      'keyMapName': keyMapName,
-      'keyMapFallthrough': keyMapFallthrough,
-      'CodeMirror.keyMap[keyMapName]': CodeMirror.keyMap[keyMapName],
-      'CodeMirror.keyMap[keyMapFallthrough]': CodeMirror.keyMap[keyMapFallthrough]
-    }, null, 2);
+    try {
+      var keyMapName = cm.getOption('keyMap');
+      var keyMapFallthrough = CodeMirror.keyMap[keyMapName].fallthrough;
+      // 5 = 3;
+      return JSON.stringify({
+        'keyMapName': keyMapName,
+        'keyMapFallthrough': keyMapFallthrough,
+        'CodeMirror.keyMap[keyMapName]': CodeMirror.keyMap[keyMapName],
+        'CodeMirror.keyMap[keyMapFallthrough]': CodeMirror.keyMap[keyMapFallthrough]
+      }, null, 2);
+    }
+    catch (ex) {
+      console.exception(ex);
+      return JSON.stringify(ex, Object.getOwnPropertyNames(ex), 2);
+    }
   };
   CodeMirror.commands.allHelp = function (cm) {
     setupHelpTypes(cm, {
@@ -85,6 +119,7 @@
     setupHelpTypes(cm, { '*commands Help*': getCommandsHelp(cm) });
   };
   CodeMirror.commands.defaultsHelp = function (cm) {
+    console.log(getDefaultsHelp(cm));
     setupHelpTypes(cm, { '*defaults Help*': getDefaultsHelp(cm) });
   };
   CodeMirror.commands.keyMapHelp = function (cm) {
