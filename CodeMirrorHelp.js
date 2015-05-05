@@ -24,6 +24,15 @@ try {
         }
         element = element.parentElement;
       }
+      let nes = element.nextElementSibling;
+      if (nes.hasOwnProperty('CodeMirror')) {
+        return nes;
+      }
+      let dcc = document.querySelector('div.CodeMirror');
+      if (dcc.hasOwnProperty('CodeMirror')) {
+        return dcc;
+      }
+      return undefined;
     };
     var reportCodeMirrorInfo = function () {
       let activeCodeMirror = findActiveCodeMirror(document.activeElement);
