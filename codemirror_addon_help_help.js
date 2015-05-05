@@ -10,25 +10,6 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
-
-  // CodeMirror.registerGlobalHelper("help", "keymap", function(mode) {
-  //   // Predicate qualifying helper applicability.
-  //   return mode.blockCommentStart && mode.blockCommentEnd;
-  // }, function(cm, start) {
-  //   var mode = cm.getModeAt(start), startToken = mode.blockCommentStart, endToken = mode.blockCommentEnd;
-  //   var keyMapName = cm.getOption('keyMap');
-  //   var keyMapFallthrough = CodeMirror.keyMap[keyMapName].fallthrough;
-  //   console.log(JSON.stringify({
-  //     'keyMapName': keyMapName,
-  //     'keyMapFallthrough': keyMapFallthrough,
-  //     'CodeMirror.keyMap[keyMapName]': CodeMirror.keyMap[keyMapName],
-  //     'CodeMirror.keyMap[keyMapFallthrough]': CodeMirror.keyMap[keyMapFallthrough],
-  //     // 'CodeMirror.commands': CodeMirror.commands
-  //     'CodeMirror.commands': Object.keys(CodeMirror.commands).sort()
-  //   }, null, 2));
-  //   // return {from: CodeMirror.Pos(line, startCh),
-  //   //         to: CodeMirror.Pos(end, endCh)};
-  // });
   CodeMirror.commands.commandsHelp = function(cm) {
     console.log(JSON.stringify({
       'typeof cm': typeof cm,
