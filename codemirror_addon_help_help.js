@@ -55,10 +55,7 @@
   };
   var getCommandsHelp = function(cm) {
     try {
-      return JSON.stringify({
-        'Object.keys(CodeMirror.commands).length': Object.keys(CodeMirror.commands).length,
-        'Object.keys(CodeMirror.commands).sort()': Object.keys(CodeMirror.commands).sort()
-      }, null, 2);
+      return JSON.stringify(Object.keys(CodeMirror.commands).sort(), null, 2);
     }
     catch (ex) {
       console.exception(ex);
@@ -68,23 +65,6 @@
   var getDefaultsHelp = function(cm) {
     try {
       return JSON.stringify(CodeMirror.defaults, Object.keys(CodeMirror.defaults).sort(), 2);
-      // return 
-      // 'Object.keys(CodeMirror.defaults).length: ' +
-      //   Object.keys(CodeMirror.defaults).length + '\n' +
-      //   JSON.stringify(CodeMirror.defaults, null, 2) + '\n' +
-      //   JSON.stringify(Object.keys(CodeMirror.defaults).sort(), null, 2);
-    }
-    catch (ex) {
-      console.exception(ex);
-      return JSON.stringify(ex, Object.getOwnPropertyNames(ex), 2);
-    }
-  };
-  var getOptionsHelp = function(cm) {
-    try {
-      return JSON.stringify({
-        'Object.keys(cm.options).length': Object.keys(cm.options).length,
-        'Object.keys(cm.options).sort()': Object.keys(cm.options).sort()
-      }, null, 2);
     }
     catch (ex) {
       console.exception(ex);
@@ -94,14 +74,21 @@
   var getKeyMapHelp = function(cm) {
     try {
       var keyMapName = cm.getOption('keyMap');
-      var keyMapFallthrough = CodeMirror.keyMap[keyMapName].fallthrough;
-      // 5 = 3;
-      return JSON.stringify({
-        'keyMapName': keyMapName,
-        'keyMapFallthrough': keyMapFallthrough,
-        'CodeMirror.keyMap[keyMapName]': CodeMirror.keyMap[keyMapName],
-        'CodeMirror.keyMap[keyMapFallthrough]': CodeMirror.keyMap[keyMapFallthrough]
-      }, null, 2);
+      // var keyMapFallthrough = CodeMirror.keyMap[keyMapName].fallthrough;
+      var keyMapHelp = JSON.stringify(CodeMirror.keyMap[keyMapName], Object.keys(CodeMirror.keyMap[keyMapName]).sort(), 2);
+      while (keyMapName = CodeMirror.keyMap[keyMapName].fallthrough) {
+        keyMapHelp += '\n' + JSON.stringify(CodeMirror.keyMap[keyMapName], Object.keys(CodeMirror.keyMap[keyMapName]).sort(), 2);
+      }
+      return keyMapHelp;
+    }
+    catch (ex) {
+      console.exception(ex);
+      return JSON.stringify(ex, Object.getOwnPropertyNames(ex), 2);
+    }
+  };
+  var getOptionsHelp = function(cm) {
+    try {
+      return JSON.stringify(cm.options, Object.keys(cm.options).sort(), 2);
     }
     catch (ex) {
       console.exception(ex);
