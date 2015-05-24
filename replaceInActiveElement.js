@@ -28,6 +28,22 @@
     "comment": "Convert to JSFiddleEmbed macro. See https://developer.mozilla.org/en-US/docs/MDN/Plans/Remove_in-content_iframes",
     "from": "/<iframe.+height=\"(\\d+)\" src=\"(https:\\/\\/jsfiddle.net\\/.+)embedded\\/([a-z,]*)\\/?\".*><\\/iframe>/g",
     "to": "{{JSFiddleEmbed(\"$2\",\"$3\",\"$1\")}}"
+  }, {
+    "comment": "Wrap German Keyboard labels in kbd tag",
+    "from": "/<td>(Tab|Eingabetaste|Pfeil (oben|unten|links|rechts)|Bild (Auf|Ab)|F\\d+|H|Escape|Pos1|Ende)<\\/td>/g",
+    "to": "<td><kbd>$1</kbd></td>"
+  }, {
+    "comment": "Wrap Keyboard labels (A + \S) in kbd tag",
+    "from": "/<td>(\\w+)\\s*\\+\\s*(\\S)<\\/td>/g",
+    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd></td>"
+  }, {
+    "comment": "Wrap Keyboard labels (A + B) in kbd tags",
+    "from": "/<td>(\\w+)\\s*\\+\\s*(\\w+)<\\/td>/g",
+    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd></td>"
+  }, {
+    "comment": "Wrap Keyboard labels (A + B + C) in kbd tags",
+    "from": "/<td>(\\w+)\\s*\\+\\s*(\\w+)\\s*\\+\\s*(\\w+)<\\/td>/g",
+    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd> + <kbd>$3</kbd></td>"
   }];
   window.addEventListener("beforeunload", function (event) {
     event.returnValue = "unsaved";
