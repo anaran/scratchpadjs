@@ -33,7 +33,7 @@
     "from": "/<td>(Tab|Eingabetaste|Pfeil (oben|unten|links|rechts)|Bild (Auf|Ab)|F\\d+|H|Escape|Pos1|Ende)<\\/td>/g",
     "to": "<td><kbd>$1</kbd></td>"
   }, {
-    "comment": "Wrap Keyboard labels (A + \S) in kbd tag",
+    "comment": "Wrap Keyboard labels (A + \\S) in kbd tag",
     "from": "/<td>(\\w+)\\s*\\+\\s*(\\S)<\\/td>/g",
     "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd></td>"
   }, {
