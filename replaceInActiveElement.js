@@ -30,20 +30,20 @@
     "to": "{{JSFiddleEmbed(\"$2\",\"$3\",\"$1\")}}"
   }, {
     "comment": "Wrap German Keyboard labels in kbd tag",
-    "from": "/<td>(Tab|Eingabetaste|Pfeil (oben|unten|links|rechts)|Bild (Auf|Ab)|F\\d+|H|Escape|Pos1|Ende)<\\/td>/g",
-    "to": "<td><kbd>$1</kbd></td>"
+    "from": "/(<td>|\\s+\\/\\s+)(Tab|Eingabetaste|Pfeil (?:oben|unten|links|rechts)|Bild (?:Auf|Ab)|F\\d+|H|Escape|Pos1|Ende|Löschen)(<|</td>|\\s+\\/\\s+)/g",
+    "to": "$1<kbd>$2</kbd>$3"
   }, {
     "comment": "Wrap Keyboard labels (A + \\S) in kbd tag",
-    "from": "/<td>(\\w+)\\s*\\+\\s*(\\S)<\\/td>/g",
-    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd></td>"
+    "from": "/(<td>|\\s+\\/\\s+)(\\w+)\\s*\\+\\s*(\\S)(<|<\\/td>|\\s+\\/)/g",
+    "to": "$1<kbd>$2</kbd> + <kbd>$3</kbd>$4"
   }, {
     "comment": "Wrap Keyboard labels (A + B) in kbd tags",
-    "from": "/<td>(\\w+)\\s*\\+\\s*(\\w+)<\\/td>/g",
-    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd></td>"
+    "from": "/(<td>|\\s+\\/\\s+)(\\w+)\\s*\\+\\s*((?:\\w|\\s|\\d)+)(<|<\\/td>|\\s+\\/)/g",
+    "to": "$1<kbd>$2</kbd> + <kbd>$3</kbd>$4"
   }, {
     "comment": "Wrap Keyboard labels (A + B + C) in kbd tags",
-    "from": "/<td>(\\w+)\\s*\\+\\s*(\\w+)\\s*\\+\\s*(\\w+)<\\/td>/g",
-    "to": "<td><kbd>$1</kbd> + <kbd>$2</kbd> + <kbd>$3</kbd></td>"
+    "from": "/(<td>|\\s+\\/\\s+)(\\w+)\\s*\\+\\s*((?:\\w|\\s|\\d)+)\\s*\\+\\s*((?:\\w|\\s|\\d)+)(<|<\\/td>|\\s+\\/)/g",
+    "to": "$1<kbd>$2</kbd> + <kbd>$3</kbd> + <kbd>$4</kbd>$5"
   }];
   window.addEventListener("beforeunload", function (event) {
     event.returnValue = "unsaved";
