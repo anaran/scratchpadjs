@@ -66,14 +66,7 @@
     // keyMap: 'emacs',
     foldGutter: true,
     lineNumbers: true,
-    // foldGutter: true,
-    // foldGutter: {gutter: "CodeMirror-foldgutter",
-    //              indicatorOpen: "CodeMirror-foldgutter-open",
-    //              indicatorFolded: "CodeMirror-foldgutter-folded"},
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    // gutters: [
-    //   'CodeMirror-foldgutter'
-    // ],
     mode: 'htmlmixed'/**/
   });
   console.log(editor);
