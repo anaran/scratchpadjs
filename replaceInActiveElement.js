@@ -211,7 +211,7 @@
       div.style.opacity = 0.9;
     }
   };
-  replace.onclick = function () {
+  replace.onclick = function (event) {
     event.preventDefault();
     event.stopPropagation();
     console.log(this);
