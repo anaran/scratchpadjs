@@ -212,7 +212,12 @@
     }
   };
   replace.onclick = function () {
-    console.log(this, from.value, to.value, ae);
+    event.preventDefault();
+    event.stopPropagation();
+    console.log(this);
+    console.log(from.value);
+    console.log(to.value);
+    console.log(ae);
     // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
     let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
     let regexp = new RegExp(captureGroups[1], captureGroups[2]);
@@ -316,9 +321,22 @@
         try {
           var replaceValue;
           do {
-            replaceValue = ae[target].replace(regexp, replacement);
-            if (window.confirm('replace at ' + regexp.lastIndex + '?')) {
-              ae[target] = replaceValue;
+            let start = ae.selectionStart;
+            let end = ae.selectionEnd;
+            if (start !== end) {
+              let leader = ae[target].substring(0, (start < end) ? start : end);
+              let trailer = ae[target].substring((start < end) ? end : start);
+              let selection = ae[target].substring((start < end) ? start : end, (start < end) ? end : start);
+              replaceValue = leader + selection.replace(regexp, replacement) + trailer;
+              if (window.confirm('replace selection from ' + ((start < end) ? start : end) + ' to ' + ((start < end) ? end : start) + '?')) {
+                ae[target] = replaceValue;
+              }
+            }
+            else {
+              replaceValue = ae[target].replace(regexp, replacement);
+              if (window.confirm('replace at ' + regexp.lastIndex + '?')) {
+                ae[target] = replaceValue;
+              }
             }
             console.log('replaced ae["' + target + '"]', ae[target]);
           } while (ae[target] != replaceValue);
