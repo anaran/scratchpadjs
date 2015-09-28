@@ -13,15 +13,18 @@
     return obj.label;
   };
   var getLink = function getLink(obj) {
-    return obj.linkedBrowser.contentDocument.location.href;
+    // console.log(obj.linkedBrowser);
+    // return "no href";
+    return obj.linkedBrowser.lastURI.spec;
+    // return obj.linkedBrowser.contentDocument.location.href;
   };
   // See Scratchpad.ScratchpadManager.saveOpenWindows.toSource()
   var getSaved = function getSaved(window) {
     var state = window.Scratchpad.getState();
     return (state.saved ? '__' : '*_') + state.filename + ' ('
-      + (state.executionContext == window.SCRATCHPAD_CONTEXT_BROWSER
-         ? 'Browser' : 'Content')
-      + ')';
+    + (state.executionContext == window.SCRATCHPAD_CONTEXT_BROWSER
+       ? 'Browser' : 'Content')
+    + ')';
   };
   var getPath = function getPath(window) {
     var state = window.Scratchpad.getState();
@@ -42,8 +45,7 @@
       obj.click();
     };
   };
-  var buildTableDiv = function buildTable(info, tabs, getLabel, getLink /*, clickFunc*/) {
-    var d = content.document;
+  var buildTableDiv = function buildTable(d, info, tabs, getLabel, getLink /*, clickFunc*/) {
     var t = d.createElement('table');
     var div = d.createElement('div');
     t.style.width = '100%';
@@ -66,8 +68,7 @@
     // div.style = "position: fixed; overflow: scroll; top: 2em; right: 2em; bottom: 2em; left: 2em; opacity: 0.9; background: white;"
     return div;
   };
-  var buildLinksDiv = function buildLinksDiv(info, tabs, getLabel, getLink, clickFunc) {
-    var d = content.document;
+  var buildLinksDiv = function buildLinksDiv(d, info, tabs, getLabel, getLink, clickFunc) {
     var div = d.createElement('div');
     var header = d.createElement('h1');
     header.textContent = info;
@@ -165,10 +166,12 @@
   // win.Scratchpad.openErrorConsole();
   // console.log(scratchpads);
   // var div = buildTableDiv(tabInfo, tabs, getLabel, getLink);
-  var div = buildLinksDiv(tabInfo, tabs, getLabel, getLink, clickFunc);
+  var otw = window.open('', 'open_tabs');
+  var osw = window.open('', 'open_scratchpads');
+  var div = buildLinksDiv(otw.document, tabInfo, tabs, getLabel, getLink, clickFunc);
   var spInfo = 'Browser has ' + scratchpads.length + ' Scratchpads';
-  var spDiv = buildLinksDiv(spInfo, scratchpads, getSaved, getPath, focusScratchpad);
+  var spDiv = buildLinksDiv(osw.document, spInfo, scratchpads, getSaved, getPath, focusScratchpad);
   // content.document.body.appendChild(div);
-  window.open('', 'open_tabs').document.body.appendChild(div);
-  window.open('', 'open_scratchpads').document.body.appendChild(spDiv);
+  otw.document.body.appendChild(div);
+  osw.document.body.appendChild(spDiv);
 }) ();
