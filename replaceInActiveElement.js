@@ -214,15 +214,23 @@
   replace.onclick = function (event) {
     event.preventDefault();
     event.stopPropagation();
-    console.log(this);
-    console.log(from.value);
-    console.log(to.value);
-    console.log(ae);
-    // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
-    let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
-    let regexp = new RegExp(captureGroups[1], captureGroups[2]);
-    window.alert(JSON.stringify([from.value, to.value, gep.getElementPath(ae)], null, 2));
-    replaceInActiveElement(regexp, to.value, ae);
+    window.alert('replacements will occur at next click or text selection');
+    let actOnElement = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      ae = event.target;
+      window.removeEventListener('click', actOnElement)
+      console.log(this);
+      console.log(from.value);
+      console.log(to.value);
+      console.log(ae);
+      // (window.confirm('Do interactive replace now?\n\n Active element:\n ' + gep.getElementPath(document.activeElement) + '\n\nAlternatively open the webconsole for command line use.')) {
+      let captureGroups = from.value.match(/^\/?(.+?)(?:\/([gim]*))?$/);
+      let regexp = new RegExp(captureGroups[1], captureGroups[2]);
+      window.alert(JSON.stringify([from.value, to.value, gep.getElementPath(ae)], null, 2));
+      replaceInActiveElement(regexp, to.value, ae);
+    };
+    window.addEventListener('click', actOnElement);
   };
   var updateDownloadLinkFromUI = function (event) {
     if (!from.checkValidity()) {
