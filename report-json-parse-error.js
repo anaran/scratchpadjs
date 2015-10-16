@@ -14,32 +14,35 @@ var reportError = function (element) {
   var txt = element.textContent || element.value;
   var infoDiv = document.createElement('div');
   infoDiv.className = 'report-json-error';
-  infoDiv.style = 'position: fixed; top: 40%; left: 20%; opacity: 0.2;';
-
-  var close = document.createElement('div');
+  infoDiv.style = 'position: fixed; top: 40%; left: 20%; opacity: 0.9; transition: opacity 3s 1s';
+  // infoDiv.style.transition = 'opacity 3s 1s';
+  var div = document.createElement('div');
+  var close = document.createElement('span');
   // NOTE &Cross; is not available in Firefox for Android.
-  close.innerHTML = '&cross;';
+  // Also, &times; seems to be more widely used.
+  close.innerHTML = '&times;';
   close.align = 'left';
   var closeOverlay = function (event) {
-    document.body.removeChild(event.target.parentElement);
+    document.body.removeChild(infoDiv);
   };
   close.onclick = closeOverlay;
-  infoDiv.appendChild(close);
+  infoDiv.appendChild(div);
+  div.appendChild(close);
   var info = document.createElement('textarea');
   info.style = 'border: solid limegreen 0.2em; background: white; resize: both;';
   info.readOnly = true;
-  info.addEventListener('dblclick', function (e) {
-    // e.preventDefault();
-    // e.stopPropagation();
-    element.removeChild(infoDiv);
-  }, false);
-  info.addEventListener('touchstart', function (e) {
-    // e.preventDefault();
-    // e.stopPropagation();
-    if (e.targetTouches.length > 1) {
-      element.removeChild(infoDiv);
-    }
-  }, false);
+  // info.addEventListener('dblclick', function (e) {
+  //   // e.preventDefault();
+  //   // e.stopPropagation();
+  //   element.removeChild(infoDiv);
+  // }, false);
+  // info.addEventListener('touchstart', function (e) {
+  //   // e.preventDefault();
+  //   // e.stopPropagation();
+  //   if (e.targetTouches.length > 1) {
+  //     element.removeChild(infoDiv);
+  //   }
+  // }, false);
   infoDiv.appendChild(info);
   document.body.appendChild(infoDiv);
   DEBUG && console.log(infoDiv);
@@ -82,7 +85,6 @@ var reportError = function (element) {
   }, false);
   try {
     var data = JSON.parse(txt);
-    // info.style.opacity = 0.9;
     info.value = 'JSON data (' + txt.length + ' characters) parsed without errors';
     var div = document.createElement('div');
     var download = document.createElement('a');
@@ -94,6 +96,9 @@ var reportError = function (element) {
     download.textContent = 'Download exported data';
     div.appendChild(download);
     infoDiv.appendChild(div);
+    window.requestAnimationFrame(function (timestamp) {
+      infoDiv.style.opacity = 0.2;
+    });
   } catch (e) {
     var reportProperties = function (propArray) {
       JSON.stringify(propArray.map(function (expression) {
@@ -187,8 +192,7 @@ var reportError = function (element) {
       info.value = 'JSON error offset is beyond first ' + element.nodeName + ' node.\n' + info.value;
     }
     info.style.borderColor = 'red';
-    info.style.transition = 'opacity 3s 1s';
-    info.style.opacity = 0.9;
+    infoDiv.style.opacity = 0.9;
     info.rows = info.value.split(/\n/).length;
     info.cols = Math.max.apply(null, info.value.split(/\n/).map(function (line) {
       return line.length;
